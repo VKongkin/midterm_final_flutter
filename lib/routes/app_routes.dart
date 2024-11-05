@@ -5,6 +5,7 @@ import 'package:product_flutter_app/modules/product/view/product_view.dart';
 import 'package:product_flutter_app/modules/product/product_see_all_screen.dart';
 import 'package:product_flutter_app/modules/product/view/product_detail_view.dart';
 import 'package:product_flutter_app/post/modules/auth/login/view/post_login_screen.dart';
+import 'package:product_flutter_app/post/modules/auth/login/view/post_register_screen.dart';
 import 'package:product_flutter_app/post/modules/category/view/post_category_form_widget_view.dart';
 import 'package:product_flutter_app/post/modules/category/view/post_category_view.dart';
 import 'package:product_flutter_app/post/modules/post/view/post_view.dart';
@@ -26,6 +27,7 @@ class RouteName {
   static const String postManageCategory = "/post/manage/category";
   static const String postManageCreateCategoryPath = "/post/manage/category/create";
   static const String postManagePath = "/post/manage/post";
+  static const String postAppRegister = "/post/register";
 }
 
 class AppRoute {
@@ -57,7 +59,7 @@ class AppRoute {
         GetPage(
             name: RouteName.postRoot,
             page: () => RootView(),
-            transition: Transition.leftToRightWithFade),
+            transition: Transition.native),
         GetPage(
             name: RouteName.postLogin,
             page: () => PostLoginScreen(),
@@ -77,6 +79,10 @@ class AppRoute {
         GetPage(
             name: RouteName.postManagePath,
             page: () => PostView(),
+            transition: Transition.leftToRightWithFade),
+        GetPage(
+            name: RouteName.postAppRegister,
+            page: () => PostRegisterScreen(),
             transition: Transition.leftToRightWithFade)
       ];
 }

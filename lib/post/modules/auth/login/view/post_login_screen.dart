@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:product_flutter_app/post/modules/auth/login/controller/login_controller.dart';
+import 'package:product_flutter_app/routes/app_routes.dart';
 
 class PostLoginScreen extends StatefulWidget {
    PostLoginScreen({super.key});
@@ -218,7 +219,7 @@ class _PostLoginScreenState extends State<PostLoginScreen> {
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
                           // Handle tap event (e.g., navigate to registration page)
-                          print('Register link clicked');
+                          Get.toNamed(RouteName.postAppRegister);
                         },
                     ),
                     // TextSpan(

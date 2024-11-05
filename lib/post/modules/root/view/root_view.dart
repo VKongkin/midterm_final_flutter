@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:product_flutter_app/cors/constants/constants.dart';
 import 'package:product_flutter_app/modules/home/widget/home_app_bar_widget.dart';
+import 'package:product_flutter_app/post/widgets/custom_bottom_app_bar_screen.dart';
 import 'package:product_flutter_app/post/widgets/post_app_bar_widget.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 

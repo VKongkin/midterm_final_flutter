@@ -17,5 +17,6 @@ class ApiUrl{
   static const String postCreatePath = "$baseUrlPostApp/api/app/post/create";
   static const String postGetByIdPath = "$baseUrlPostApp/api/app/post/";
   static const String postGetImagePath = "$baseUrlPostApp/api/public/view/image?filename=";
+  static const String postUploadImagePath = "$baseUrlPostApp/app/public/v1/image/upload";
 
 }

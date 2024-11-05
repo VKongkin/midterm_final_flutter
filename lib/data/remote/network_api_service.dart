@@ -15,6 +15,7 @@ import 'package:product_flutter_app/models/postmodel/login/refresh_token_request
 import 'package:product_flutter_app/models/postmodel/login/user.dart';
 import 'package:product_flutter_app/repository/post/login_repository.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
+import 'package:product_flutter_app/toastAndLoader/toastMessage.dart';
 
 class NetworkApiService implements BaseApiService {
   @override
@@ -98,6 +99,94 @@ class NetworkApiService implements BaseApiService {
   }
 
   @override
+  Future postApiUploadImage(String url, File imageFile) async {
+    if (kDebugMode) {
+      print("POST REQUEST URL: $url\n");
+    }
+    dynamic responseJson;
+
+    try {
+      // Create a Multipart request
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+
+      // Add headers
+      request.headers['Authorization'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ2a29uZ2tpbiIsImlhdCI6MTczMDY2MDQ5MywiZXhwIjoxNzMwNjYwNzkzfQ.yTQNh_OHhTHnhUbNPUxIuYwdiJE1afw96yVsUYbmOUvqVhYpwbTo7Aajk8YOoQyuYNt1f0T74BpzrRqRHx4Vtg';
+      request.headers['Content-Type'] = 'multipart/form-data';
+
+      // Attach the image file
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image', // The name parameter here should match the expected key on the server
+          imageFile.path,
+        ),
+      );
+
+      // Send the request and get the response
+      var response = await request.send();
+      var responseString = await response.stream.bytesToString();
+
+      print("STATUS CODE POST: ${response.statusCode}");
+      print("RESPONSE POST: $responseString");
+
+      // Parse the response
+      switch (response.statusCode) {
+        case 200:
+          responseJson = jsonDecode(responseString);
+          print("POST API CODE 200: Success");
+          break;
+
+        case 401:
+          print("POST API CODE 401: Unauthorized");
+          bool refreshed = await _handleTokenRefresh(url, imageFile);
+          if (refreshed) {
+            return await postApiUploadImage(url, imageFile); // Retry after refresh
+          } else {
+            Get.offAllNamed(RouteName.postSplash); // Navigate to splash screen
+             print("Unauthorized: Token refresh failed");
+          }
+
+        case 500:
+          throw InternalServerException("Internal Server Error");
+
+        default:
+          throw HttpException("Unexpected status code: ${response.statusCode}");
+      }
+    } on SocketException {
+      throw NoInternetConnectionException("No Internet Connection");
+    } on TimeoutException {
+      throw RequestTimeOutException("Request Timed Out");
+    } catch (e) {
+      // Log any other unexpected exceptions for debugging
+      print("Unexpected error: $e");
+      rethrow; // Rethrow the exception for higher-level handling
+    }
+
+    if (kDebugMode) {
+      print("RESPONSE POST API BODY: $responseJson\n");
+    }
+
+    return responseJson;
+  }
+
+// Helper function to handle token refresh and retry
+  Future<bool> _handleTokenRefresh(String url, dynamic requestBody) async {
+    try {
+      bool tokenRefreshed = await refreshTokenApi();
+      if (tokenRefreshed) {
+        print("Token refreshed successfully, retrying POST request");
+        return true;
+      } else {
+        print("Token refresh failed");
+        return false;
+      }
+    } catch (e) {
+      print("Error during token refresh: $e");
+      return false;
+    }
+  }
+
+
+  @override
   Future loginApi(String url, requestBody) async {
     if (kDebugMode) {
       print("GET REQUEST URL $url\n");
@@ -113,6 +202,9 @@ class NetworkApiService implements BaseApiService {
           .timeout(const Duration(seconds: 60));
       switch (response.statusCode) {
         case 200:
+          responseJson = jsonDecode(response.body);
+          break;
+          case 400:
           responseJson = jsonDecode(response.body);
           break;
         case 401:
