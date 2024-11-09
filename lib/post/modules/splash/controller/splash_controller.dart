@@ -5,6 +5,7 @@ import 'package:product_flutter_app/models/postmodel/login/login_response.dart';
 import 'package:product_flutter_app/repository/post/login_repository.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 import 'package:product_flutter_app/toastAndLoader/toastMessage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashController extends GetxController with SingleGetTickerProviderMixin{
   var _loginRepository = LoginRepository();
@@ -51,8 +52,15 @@ class SplashController extends GetxController with SingleGetTickerProviderMixin{
 
   Future<void> checkUserLoggedIn() async {
     var user = await _loginRepository.getUserLocal();
-    print("USER = ${user.user}");
-    // print("USER ${storage.read("USER_KEY")["user"]["username"]}");
+    final prefs = await SharedPreferences.getInstance();
+    bool isFirstLaunch = prefs.getBool('isFirstLaunch') ?? false;
+    print("CHECK LAUNCH ${isFirstLaunch}");
+
+    if (isFirstLaunch == false) {
+      // Display the splash screen animation for the first launch
+      await Future.delayed(Duration(seconds: 3)); // Display for 3 seconds
+      prefs.setBool('isFirstLaunch', true); // Update to mark as not first launch
+    }
     if (user.user == null) {
       print("NO USER FOUND");
       await Future.delayed(Duration(seconds: 3));  // Await the delay to pause execution

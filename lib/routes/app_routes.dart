@@ -11,6 +11,7 @@ import 'package:product_flutter_app/post/modules/category/view/post_category_vie
 import 'package:product_flutter_app/post/modules/post/view/post_view.dart';
 import 'package:product_flutter_app/post/modules/root/view/root_view.dart';
 import 'package:product_flutter_app/post/modules/splash/view/splash_view.dart';
+import 'package:product_flutter_app/post/modules/root/view/main_wrapper.dart';
 import 'package:product_flutter_app/toastAndLoader/product_card_list_loading_shimmer.dart';
 import 'package:product_flutter_app/toastAndLoader/shimmer_loading_screen.dart';
 
@@ -28,6 +29,7 @@ class RouteName {
   static const String postManageCreateCategoryPath = "/post/manage/category/create";
   static const String postManagePath = "/post/manage/post";
   static const String postAppRegister = "/post/register";
+  static const String postMainWrapper = "/post/main";
 }
 
 class AppRoute {
@@ -55,7 +57,7 @@ class AppRoute {
         GetPage(
             name: RouteName.productDetailScreen,
             page: () => ProductDetailView(),
-            transition: Transition.leftToRightWithFade),
+            transition: Transition.native),
         GetPage(
             name: RouteName.postRoot,
             page: () => RootView(),
@@ -63,26 +65,30 @@ class AppRoute {
         GetPage(
             name: RouteName.postLogin,
             page: () => PostLoginScreen(),
-            transition: Transition.leftToRightWithFade),
+            transition: Transition.native),
         GetPage(
             name: RouteName.postSplash,
             page: () => SplashView(),
-            transition: Transition.leftToRightWithFade),
+            transition: Transition.native),
         GetPage(
             name: RouteName.postManageCategory,
             page: () => PostCategoryView(),
-            transition: Transition.leftToRightWithFade),
+            transition: Transition.native),
         GetPage(
             name: RouteName.postManageCreateCategoryPath,
             page: () => PostCategoryFormWidgetView(),
-            transition: Transition.leftToRightWithFade),
+            transition: Transition.native),
         GetPage(
             name: RouteName.postManagePath,
             page: () => PostView(),
-            transition: Transition.leftToRightWithFade),
+            transition: Transition.native),
         GetPage(
             name: RouteName.postAppRegister,
             page: () => PostRegisterScreen(),
-            transition: Transition.leftToRightWithFade)
+            transition: Transition.native),
+        GetPage(
+            name: RouteName.postMainWrapper,
+            page: () => MainWrapper(),
+            transition: Transition.native)
       ];
 }

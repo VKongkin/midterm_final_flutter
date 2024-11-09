@@ -10,4 +10,5 @@ class Constants {
 
   static const String iconEnglishPath = "assets/images/icons/english.png";
   static const String iconKhmerPath = "assets/images/icons/khmer.png";
+  static const String iconNoImage = "assets/images/icons/no.png";
 }

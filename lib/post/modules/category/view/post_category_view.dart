@@ -3,11 +3,13 @@ import 'package:get/get.dart';
 import 'package:product_flutter_app/cors/constants/constants.dart';
 import 'package:product_flutter_app/data/status.dart';
 import 'package:product_flutter_app/post/modules/category/view_model/post_category_view_model.dart';
+import 'package:product_flutter_app/post/modules/root/controller/root_controller.dart';
 import 'package:product_flutter_app/post/widgets/post_app_bar_widget.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 
 class PostCategoryView extends StatelessWidget {
   var viewModel = Get.put(PostCategoryViewModel());
+  final RootController rootController = Get.put(RootController());
   PostCategoryView({super.key});
 
   @override
@@ -42,11 +44,12 @@ class PostCategoryView extends StatelessWidget {
                 padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                 child: PostAppBarWidget(
                   onTab: () {
-                    Get.offAllNamed(RouteName.postRoot);
+                    Get.offNamed(RouteName.postRoot);
+                    // rootController.updateIndex(0);
                   },
                   appTitle: Constants.postAppCategoryManageName.tr,
                   fontSize: 17,
-                  icon: Icons.arrow_back,
+                  icon: Icons.arrow_back_ios,
                 ),
               ),
 

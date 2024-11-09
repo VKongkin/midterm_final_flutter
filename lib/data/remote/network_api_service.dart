@@ -55,6 +55,12 @@ class NetworkApiService implements BaseApiService {
     dynamic responseJson;
     try {
       var storage = GetStorage();
+      // print("USER CHECK: ${storage.read("USER_KEY")}");
+
+      if(storage.read("USER_KEY") ==null){
+        Get.offAllNamed(RouteName.postSplash);
+      }
+
       var user = LoginResponse.fromJson(storage.read("USER_KEY"));
       var token = "";
       if (user.refreshToken != null) {
@@ -76,6 +82,15 @@ class NetworkApiService implements BaseApiService {
           print("POST API CODE 200");
           break;
         case 401:
+          print("POST API CODE 400");
+          if (await refreshTokenApi() == true) {
+            print("ON RETRY POST");
+            responseJson = await refresh(url,requestBody);
+            break;
+          } else {
+            Get.offAllNamed(RouteName.postSplash);
+          }
+          case 403:
           print("POST API CODE 400");
           if (await refreshTokenApi() == true) {
             print("ON RETRY POST");
@@ -269,6 +284,11 @@ class NetworkApiService implements BaseApiService {
           storage.remove("USER_KEY");
           Get.offAllNamed(RouteName.postSplash);
           return false; // Unauthorized
+        case 403:
+          print("Unauthorized (401), returning false");
+          storage.remove("USER_KEY");
+          Get.offAllNamed(RouteName.postSplash);
+          return false; // Unauthorized
 
         case 500:
           throw InternalServerException(); // Server error
@@ -310,11 +330,12 @@ class NetworkApiService implements BaseApiService {
           // break;
         case 401:
           print("REFRESH API CODE 400");
-          if (await refreshTokenApi() == true) {
-            print("ON RETRY REFRESH");
-          } else {
+          // if (await refreshTokenApi() == true) {
+          //   print("ON RETRY REFRESH");
+          // } else {
+          storage.remove("USER_KEY");
             Get.offAllNamed(RouteName.postSplash);
-          }
+          // }
         case 500:
           throw InternalServerException();
       }

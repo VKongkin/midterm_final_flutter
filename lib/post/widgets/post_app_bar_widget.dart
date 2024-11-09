@@ -9,7 +9,7 @@ import 'package:product_flutter_app/routes/app_routes.dart';
 
 class PostAppBarWidget extends StatelessWidget {
   // final HomeController homeController = Get.put(HomeController());
-  var splashController = SplashController();
+  // var splashController = SplashController();
 
   // final AuthRepository authRepository = Get.put(AuthRepository());
   String? appTitle;
@@ -38,7 +38,9 @@ class PostAppBarWidget extends StatelessWidget {
                     onPressed: onTab,
                     icon: Icon(icon ?? Icons.grid_view_rounded),
                     color: Colors.white,
-                    style: IconButton.styleFrom(iconSize: 32),
+                    style: IconButton.styleFrom(
+                      iconSize: icon == null ? 32 : 25, // Conditional size based on icon
+                    ),
                   ),
                   SizedBox(width: 10,),
                   Text(

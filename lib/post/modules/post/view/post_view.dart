@@ -5,11 +5,14 @@ import 'package:product_flutter_app/cors/constants/constants.dart';
 import 'package:product_flutter_app/data/remote/api_url.dart';
 import 'package:product_flutter_app/data/status.dart';
 import 'package:product_flutter_app/post/modules/post/view_model/post_view_model.dart';
+import 'package:product_flutter_app/post/modules/root/controller/root_controller.dart';
 import 'package:product_flutter_app/post/widgets/post_app_bar_widget.dart';
+import 'package:product_flutter_app/post/widgets/post_view_widget.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 
 class PostView extends StatelessWidget {
   var viewModel = Get.put(PostViewModel());
+  // final RootController rootController = Get.put(RootController());
   PostView({super.key});
 
   @override
@@ -45,10 +48,12 @@ class PostView extends StatelessWidget {
                 child: PostAppBarWidget(
                   onTab: () {
                     Get.offAllNamed(RouteName.postRoot);
+                    // rootController.updateIndex(0);
+
                   },
                   appTitle: Constants.postAppPostManageName.tr,
                   fontSize: 17,
-                  icon: Icons.arrow_back,
+                  icon: Icons.arrow_back_ios,
                 ),
               ),
 
@@ -74,43 +79,51 @@ class PostView extends StatelessWidget {
                             ..sort((a, b) => b.id.compareTo(a.id)); // Sort by 'id' in descending order
 
                           var data = sortedList[index];
-                          return GestureDetector(
-                            onTap: () {
-                              // viewModel.onUpdate("${data.id}");
-                            },
-                            child: Container(
-                              margin: EdgeInsets.only(top: 10, left: 16, right: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                              ),
-                              child: ListTile(
-                                leading: SizedBox(
-                                  width: 50,
-                                  height: 50,
-                                  child: CachedNetworkImage(
-                                    imageUrl: "${ApiUrl.postGetImagePath + data.image}",
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => CircularProgressIndicator(
-                                      strokeWidth: 2.0,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                                    ),
-                                    errorWidget: (context, url, error) => Icon(
-                                      Icons.image_outlined,
-                                      size: 50,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                                title: Text("${data.title}"),
-                                subtitle: Text("${data.category.name}"),
-                                trailing: Icon(
-                                  Icons.edit_rounded,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ),
-                          );
+                          // return GestureDetector(
+                          //   onTap: () {
+                          //     // viewModel.onUpdate("${data.id}");
+                          //   },
+                          //   child: Container(
+                          //     margin: EdgeInsets.only(top: 10, left: 16, right: 16),
+                          //     decoration: BoxDecoration(
+                          //       color: Colors.white,
+                          //       borderRadius: BorderRadius.all(Radius.circular(10)),
+                          //     ),
+                          //     child: ListTile(
+                          //       leading: SizedBox(
+                          //         width: 50,
+                          //         height: 50,
+                          //         child: CachedNetworkImage(
+                          //           imageUrl: data.image != null && data.image.isNotEmpty
+                          //               ? "${ApiUrl.postGetImagePath}${data.image}"
+                          //               : Constants.iconNoImage,
+                          //           fit: BoxFit.cover,
+                          //           placeholder: (context, url) => CircularProgressIndicator(
+                          //             strokeWidth: 2.0,
+                          //             valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                          //           ),
+                          //           errorWidget: (context, url, error) => Icon(
+                          //             Icons.image_outlined,
+                          //             size: 50,
+                          //             color: Colors.grey,
+                          //           ),
+                          //         ),
+                          //
+                          //       ),
+                          //       title: Text("${data.title}"),
+                          //       subtitle: Text("${data.category.name}"),
+                          //       trailing: Icon(
+                          //         Icons.edit_rounded,
+                          //         color: Colors.blue,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // );
+                          return PostViewWidget(profileImageUrl: data.user.profile != null && data.user.profile.isNotEmpty
+                              ? "${ApiUrl.postGetImagePath}${data.user.profile}"
+                              : Constants.iconNoImage, userName: data.createBy, timestamp: data.createAt, postText: data.title, postImageUrl: data.image != null && data.image.isNotEmpty
+                              ? "${ApiUrl.postGetImagePath}${data.image}"
+                              : "", likeCount: data.totalView, commentCount: 2, shareCount: 3);
                         },
                       );
 
