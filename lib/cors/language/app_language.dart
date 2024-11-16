@@ -15,6 +15,7 @@ class AppLanguage extends Translations{
       Constants.postAppName:"Post App",
       Constants.postAppCategoryManageName:"Category Management",
       Constants.postAppPostManageName:"Post Management",
+      Constants.postAppSearchName:"Search Post",
     },
 
 
@@ -28,6 +29,7 @@ class AppLanguage extends Translations{
       Constants.postAppName:"កម្មវិធីផុសដោយសេរី",
       Constants.postAppCategoryManageName:"ការគ្រប់គ្រងកាតិកូរី",
       Constants.postAppPostManageName:"គ្រប់គ្រង់ការផុស",
+      Constants.postAppSearchName:"ស្វែងរកការផុស",
     }
   };
 

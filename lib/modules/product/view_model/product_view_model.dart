@@ -32,6 +32,7 @@ class ProductViewModel extends GetxController {
   }
 
   fetchMoreAllProducts() async {
+    print("FETCHING MORE");
     try {
       loadingMore(true);
       currentPage += limit;

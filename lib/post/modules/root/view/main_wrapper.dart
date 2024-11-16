@@ -1,93 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:product_flutter_app/post/modules/category/view/post_category_form_widget_view.dart';
+import 'package:product_flutter_app/post/modules/category/view/post_category_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_form_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_menu_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_search_view.dart';
 import 'package:product_flutter_app/post/modules/post/view/post_view.dart';
-import 'package:product_flutter_app/post/modules/root/controller/root_controller.dart';
+import 'package:product_flutter_app/post/modules/root/controller/bottom_nav_controller.dart';
 import 'package:product_flutter_app/post/modules/root/view/root_view.dart';
-import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
-
-import '../../category/view/post_category_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_profile_view.dart';
 
 class MainWrapper extends StatelessWidget {
-  final RootController rootController = Get.put(RootController());
+  final BottomNavController controller = Get.put(BottomNavController());
 
-  MainWrapper({Key? key}) : super(key: key);
+  final List<Widget> pages = [
+    PostView(), // Replace with your actual screens
+    PostCategoryView(),
+    PostFormView(),
+    RootView(),
+    PostCategoryFormWidgetView(),
+    PostMenuView(),
+    PostProfileView(), // Add PostProfileView to the list of pages
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Use IndexedStack to manage different pages
-      body: Obx(() {
-        return IndexedStack(
-          index: rootController.selectedIndex.value,
-          children: [
-            RootView(), // Home view
-            PostCategoryView(), // Category view
-            PostView(), // Post view
+    return Obx(
+          () => Scaffold(
+        body: PageView(
+          controller: controller.pageController,
+          onPageChanged: controller.updateIndex, // Update the active index
+          children: pages,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: controller.currentIndex.value,
+          onTap: (index) {
+            if (index == 6) {
+              // Navigate to the profile page
+              controller.navigateToProfile();
+            } else {
+              controller.changePage(index); // Navigate to other tabs
+            }
+          },
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.video_call), label: "Video"),
+            BottomNavigationBarItem(icon: Icon(Icons.people), label: "Friends"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.store), label: "Marketplace"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.notifications), label: "Notifications"),
+            BottomNavigationBarItem(icon: Icon(Icons.menu), label: "Menu"),
           ],
-        );
-      }),
-
-      // Centered FloatingActionButton
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     rootController.updateIndex(1); // Set index to 1 (middle button)
-      //   },
-      //   backgroundColor: Colors.green,
-      //   shape: const CircleBorder(),
-      //   child: const Icon(Icons.shopping_cart, color: Colors.white, size: 28), // Ensure icon size fits well
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-      // Bottom Navigation Bar
-      bottomNavigationBar: Stack(
-        alignment: Alignment.center,
-        children: [
-          BottomAppBar(
-            shape: const CircularNotchedRectangle(),
-            notchMargin: 6.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                IconButton(icon: Icon(Icons.home), onPressed: () {}),
-                IconButton(icon: Icon(Icons.sunny_snowing), onPressed: () {}),
-                SizedBox(width: 50), // Spacer for the FloatingActionButton
-                IconButton(icon: Icon(Icons.category), onPressed: () {}),
-                IconButton(icon: Icon(Icons.person), onPressed: () {}),
-              ],
-            ),
-          ),
-          // FloatingActionButton with a circular background
-          Positioned(
-            bottom: 20.0,
-            child: Container(
-              height: 56.0, // Same height and width to make it circular
-              width: 56.0,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green, // Background color
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: Offset(0, 3), // Controls shadow positioning
-                  ),
-                ],
-              ),
-              child: FloatingActionButton(
-                onPressed: () {
-                  rootController
-                      .updateIndex(1); // Set index to 1 (middle button)
-                },
-                backgroundColor: Colors.green,
-                shape: const CircleBorder(),
-                child: const Icon(Icons.shopping_cart,
-                    color: Colors.white,
-                    size: 28), // Ensure icon size fits well
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

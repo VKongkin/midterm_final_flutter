@@ -24,11 +24,15 @@ class RootView extends StatelessWidget {
               color: Colors.blue,
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
               child: PostAppBarWidget(
-                onTab: () {
-                  // Add your logic here if needed
-                },
                 appTitle: Constants.postAppName.tr,
                 fontSize: 17,
+                iconSize: 30,
+                backIcon: Icons.grid_view_rounded,
+                onBackTap: (){
+                },
+                onSearchTap: (){
+                  Get.toNamed(RouteName.postSearch);
+                },
               ),
             ),
             SizedBox(height: 10),

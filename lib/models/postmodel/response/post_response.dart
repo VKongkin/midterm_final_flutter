@@ -1,40 +1,26 @@
 import 'package:product_flutter_app/models/postmodel/post_category.dart';
-
 import 'user.dart';
 
 class PostResponse {
   PostResponse({
-      this.createAt, 
-      this.createBy, 
-      this.updateAt, 
-      this.updateBy, 
-      this.id, 
-      this.title, 
-      this.description, 
-      this.totalView, 
-      this.status, 
-      this.image, 
-      this.category, 
-      this.user,});
+    this.createAt,
+    this.createBy,
+    this.updateAt,
+    this.updateBy,
+    this.id,
+    this.title,
+    this.description,
+    this.totalView,
+    this.status,
+    this.image,
+    this.category,
+    this.user,
+  });
 
-  PostResponse.fromJson(dynamic json) {
-    createAt = json['createAt'];
-    createBy = json['createBy'];
-    updateAt = json['updateAt'];
-    updateBy = json['updateBy'];
-    id = json['id'];
-    title = json['title'];
-    description = json['description'];
-    totalView = json['totalView'];
-    status = json['status'];
-    image = json['image'];
-    category = json['category'] != null ? PostCategory.fromJson(json['category']) : null;
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
-  }
   String? createAt;
   String? createBy;
-  dynamic updateAt;
-  dynamic updateBy;
+  String? updateAt;
+  String? updateBy;
   int? id;
   String? title;
   String? description;
@@ -43,6 +29,21 @@ class PostResponse {
   String? image;
   PostCategory? category;
   User? user;
+
+  PostResponse.fromJson(dynamic json) {
+    createAt = json['createAt'] ?? '';
+    createBy = json['createBy'] ?? 'Unknown';
+    updateAt = json['updateAt'] ?? '';
+    updateBy = json['updateBy'] ?? '';
+    id = json['id'] ?? 0;
+    title = json['title'] ?? 'No Title';
+    description = json['description'] ?? 'No Description';
+    totalView = json['totalView'] ?? 0;
+    status = json['status'] ?? 'UNKNOWN';
+    image = json['image'] ?? '';
+    category = json['category'] != null ? PostCategory.fromJson(json['category']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
+  }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -64,5 +65,4 @@ class PostResponse {
     }
     return map;
   }
-
 }

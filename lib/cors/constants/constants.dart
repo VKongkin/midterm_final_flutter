@@ -3,6 +3,7 @@ class Constants {
   static const String postAppName = "post_app_name";
   static const String postAppCategoryManageName = "post_category_name";
   static const String postAppPostManageName = "post_name";
+  static const String postAppSearchName = "post_search";
   static const String seeAll = "see_all";
   static const String spacialProduct = "spacial_product";
   static const String productDetail = "product_detail";

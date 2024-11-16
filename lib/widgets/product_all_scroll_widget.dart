@@ -30,7 +30,8 @@ class _ProductAllScrollWidgetState extends State<ProductAllScrollWidget> {
                 scrollInfo.metrics.pixels ==
                     scrollInfo.metrics.maxScrollExtent) {
               setState(() {
-                productViewModel.fetchMoreAllProducts();
+                // productViewModel.fetchMoreAllProducts();
+                print("Fetching more");
               });
             }
             return true;

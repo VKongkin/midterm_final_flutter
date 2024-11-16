@@ -1,7 +1,5 @@
-import 'package:product_flutter_app/post/modules/post/category.dart';
-
-class PostCategory {
-  PostCategory({
+class Category {
+  Category({
       this.createAt, 
       this.createBy, 
       this.updateAt, 
@@ -11,7 +9,7 @@ class PostCategory {
       this.imageUrl, 
       this.status,});
 
-  PostCategory.fromJson(dynamic json) {
+  Category.fromJson(dynamic json) {
     createAt = json['createAt'];
     createBy = json['createBy'];
     updateAt = json['updateAt'];
@@ -41,19 +39,6 @@ class PostCategory {
     map['imageUrl'] = imageUrl;
     map['status'] = status;
     return map;
-  }
-
-  Category toCategory() {
-    return Category(
-      createAt: this.createAt,
-      createBy: this.createBy,
-      updateAt: this.updateAt,
-      updateBy: this.updateBy,
-      id: this.id,
-      name: this.name,
-      imageUrl: this.imageUrl,
-      status: this.status,
-    );
   }
 
 }

@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:product_flutter_app/data/app_exceptions.dart';
 import 'package:product_flutter_app/data/remote/api_url.dart';
 import 'package:product_flutter_app/data/remote/base_api_service.dart';
@@ -51,6 +53,7 @@ class NetworkApiService implements BaseApiService {
   Future postApi(String url, requestBody) async {
     if (kDebugMode) {
       print("GET REQUEST URL $url\n");
+      print("GET REQUEST URL $requestBody\n");
     }
     dynamic responseJson;
     try {
@@ -91,7 +94,7 @@ class NetworkApiService implements BaseApiService {
             Get.offAllNamed(RouteName.postSplash);
           }
           case 403:
-          print("POST API CODE 400");
+          print("POST API CODE 403");
           if (await refreshTokenApi() == true) {
             print("ON RETRY POST");
             responseJson = await refresh(url,requestBody);
@@ -109,6 +112,250 @@ class NetworkApiService implements BaseApiService {
     }
     if (kDebugMode) {
       print("GET RESPONSE POST API BODY $responseJson\n");
+    }
+    return responseJson;
+  }
+
+  Future<dynamic> uploadImageApi(String url, File imageFile) async {
+    if (kDebugMode) {
+      print("UPLOAD IMAGE REQUEST URL $url");
+    }
+
+    dynamic responseJson;
+    try {
+      var storage = GetStorage();
+
+      if (storage.read("USER_KEY") == null) {
+        Get.offAllNamed(RouteName.postSplash);
+      }
+
+      var user = LoginResponse.fromJson(storage.read("USER_KEY"));
+      var token = user.accessToken ?? "";
+
+      var request = http.MultipartRequest('POST', Uri.parse(url))
+        ..headers['Authorization'] = 'Bearer $token'
+        ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+
+      if (kDebugMode) {
+        print("STATUS CODE UPLOAD: ${response.statusCode}");
+        print("RESPONSE UPLOAD: $responseBody");
+      }
+
+      switch (response.statusCode) {
+        case 200:
+          responseJson = jsonDecode(responseBody);
+          print("UPLOAD IMAGE SUCCESS");
+          break;
+        case 401:
+          print("UPLOAD IMAGE CODE 401 - Unauthorized");
+          if (await refreshTokenApi() == true) {
+            responseJson = await uploadImageApi(url, imageFile); // Retry after refreshing token
+          } else {
+            Get.offAllNamed(RouteName.postSplash);
+          }
+          break;
+        case 403:
+          print("UPLOAD IMAGE CODE 403 - Forbidden");
+          if (await refreshTokenApi() == true) {
+            responseJson = await uploadImageApi(url, imageFile); // Retry after refreshing token
+          } else {
+            Get.offAllNamed(RouteName.postSplash);
+          }
+          break;
+        case 500:
+          throw InternalServerException();
+        default:
+          throw Exception("Failed to upload image");
+      }
+    } on SocketException {
+      throw NoInternetConnectionException();
+    } on TimeoutException {
+      throw RequestTimeOutException();
+    }
+
+    if (kDebugMode) {
+      print("UPLOAD IMAGE RESPONSE BODY: $responseJson\n");
+    }
+    return responseJson;
+  }
+
+
+  Future<Map<String, dynamic>> uploadImage(File image) async {
+    var storage = GetStorage();
+    final url = Uri.parse(ApiUrl.postUploadImagePath);
+    // Map<String, dynamic> responseJson;
+    dynamic responseJson;
+    try {
+      // Create a multipart request
+      var request = http.MultipartRequest("POST", url);
+
+      // Attach the image file as a multipart file
+      final mimeTypeData = lookupMimeType(image.path)!.split('/'); // Get mime type
+      request.files.add(
+        http.MultipartFile(
+          'File',
+          image.readAsBytes().asStream(),
+          image.lengthSync(),
+          filename: image.path.split('/').last,
+          contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+        ),
+      );
+
+      // Retrieve and set the authorization token
+      var user = LoginResponse.fromJson(storage.read("USER_KEY"));
+      var token = user.accessToken ?? "";
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Cache-Control'] = 'no-cache';
+      request.headers['Accept'] = '*/*';
+
+      // Send the request
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      switch(response.statusCode){
+        case 200:
+          responseJson = jsonDecode(responseBody);
+          print("Image uploaded successfully2: ${responseJson["data"]['data']}");
+        case 401:
+        if (await refreshTokenApi() == true) {
+          print("ON RETRY REFRESH");
+          responseJson = await refreshUploadImage(image);
+
+        } else {
+          storage.remove("USER_KEY");
+          Get.offAllNamed(RouteName.postSplash);
+      }
+        case 500:
+          throw InternalServerException();
+        default:
+          throw Exception("Failed to upload image");
+      }
+    } catch (e) {
+      print("Image upload failed: $e");
+      throw Exception("Image upload failed: $e");
+    }
+
+    return responseJson;
+  }
+  Future<Map<String, dynamic>> refreshUploadImage(File image) async {
+    var storage = GetStorage();
+    final url = Uri.parse(ApiUrl.postUploadImagePath);
+    // Map<String, dynamic> responseJson;
+    dynamic responseJson;
+
+    try {
+      // Create a multipart request
+      var request = http.MultipartRequest("POST", url);
+
+      // Attach the image file as a multipart file
+      final mimeTypeData = lookupMimeType(image.path)!.split('/'); // Get mime type
+      request.files.add(
+        http.MultipartFile(
+          'File',
+          image.readAsBytes().asStream(),
+          image.lengthSync(),
+          filename: image.path.split('/').last,
+          contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+        ),
+      );
+
+      // Retrieve and set the authorization token
+      var user = LoginResponse.fromJson(storage.read("USER_KEY"));
+      var token = user.accessToken ?? "";
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Cache-Control'] = 'no-cache';
+      request.headers['Accept'] = '*/*';
+
+      // Send the request
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      switch(response.statusCode){
+        case 200:
+          responseJson = jsonDecode(responseBody);
+          print("Image uploaded successfully2: ${responseJson["data"]['data']}");
+        case 401:
+          storage.remove("USER_KEY");
+          Get.offAllNamed(RouteName.postSplash);
+        case 500:
+          throw InternalServerException();
+        default:
+          throw Exception("Failed to upload image");
+      }
+    } catch (e) {
+      print("Image upload failed: $e");
+      throw Exception("Image upload failed: $e");
+    }
+
+    return responseJson;
+  }
+
+  Future refreshTokenUploadImage(File image) async {
+    final url = Uri.parse(ApiUrl.postUploadImagePath);
+    print("REFRESH TOKEN");
+    dynamic responseJson;
+    try {
+      var storage = GetStorage();
+      var user = LoginResponse.fromJson(storage.read("USER_KEY"));
+      var token = "";
+      if (user.refreshToken != null) {
+        token = user.accessToken ?? "";
+      }
+      try {
+        // Create a multipart request
+        var request = http.MultipartRequest("POST", url);
+
+        // Attach the image file as a multipart file
+        final mimeTypeData = lookupMimeType(image.path)!.split('/'); // Get mime type
+        request.files.add(
+          http.MultipartFile(
+            'File',
+            image.readAsBytes().asStream(),
+            image.lengthSync(),
+            filename: image.path.split('/').last,
+            contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+          ),
+        );
+
+        // Retrieve and set the authorization token
+        var user = LoginResponse.fromJson(storage.read("USER_KEY"));
+        var token = user.accessToken ?? "";
+        request.headers['Authorization'] = 'Bearer $token';
+        request.headers['Cache-Control'] = 'no-cache';
+        request.headers['Accept'] = '*/*';
+
+        // Send the request
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
+
+
+      switch (response.statusCode) {
+        case 200:
+          responseJson = responseBody;
+          print("REFRESH API CODE 200");
+      // break;
+        case 401:
+          print("REFRESH API CODE 401");
+          // if (await refreshTokenApi() == true) {
+          //   print("ON RETRY REFRESH");
+          // } else {
+          storage.remove("USER_KEY");
+          Get.offAllNamed(RouteName.postSplash);
+      // }
+        case 500:
+          throw InternalServerException();
+      }
+      } catch (e) {
+        print("Image upload failed: $e");
+        throw Exception("Image upload failed: $e");
+      }
+    } on SocketException {
+      throw NoInternetConnectionException();
+    } on TimeoutException {
+      throw RequestTimeOutException();
     }
     return responseJson;
   }
@@ -179,7 +426,6 @@ class NetworkApiService implements BaseApiService {
     if (kDebugMode) {
       print("RESPONSE POST API BODY: $responseJson\n");
     }
-
     return responseJson;
   }
 

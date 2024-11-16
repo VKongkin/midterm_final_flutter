@@ -15,6 +15,7 @@ class ApiUrl{
   static const String postAppGetCategoryByIdPath = "$baseUrlPostApp/api/app/category/";
   static const String postGetAllPath = "$baseUrlPostApp/api/app/post/list";
   static const String postCreatePath = "$baseUrlPostApp/api/app/post/create";
+  static const String postDeletePath = "$baseUrlPostApp/api/app/post/delete";
   static const String postGetByIdPath = "$baseUrlPostApp/api/app/post/";
   static const String postGetImagePath = "$baseUrlPostApp/api/public/view/image?filename=";
   static const String postUploadImagePath = "$baseUrlPostApp/app/public/v1/image/upload";

@@ -8,6 +8,10 @@ import 'package:product_flutter_app/post/modules/auth/login/view/post_login_scre
 import 'package:product_flutter_app/post/modules/auth/login/view/post_register_screen.dart';
 import 'package:product_flutter_app/post/modules/category/view/post_category_form_widget_view.dart';
 import 'package:product_flutter_app/post/modules/category/view/post_category_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_form_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_menu_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_profile_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_search_view.dart';
 import 'package:product_flutter_app/post/modules/post/view/post_view.dart';
 import 'package:product_flutter_app/post/modules/root/view/root_view.dart';
 import 'package:product_flutter_app/post/modules/splash/view/splash_view.dart';
@@ -29,7 +33,11 @@ class RouteName {
   static const String postManageCreateCategoryPath = "/post/manage/category/create";
   static const String postManagePath = "/post/manage/post";
   static const String postAppRegister = "/post/register";
+  static const String postAppFormCreatePath = "/post/manage/create";
   static const String postMainWrapper = "/post/main";
+  static const String postProfile = "/post/profile";
+  static const String postSearch = "/post/search";
+  static const String postMenu = "/post/menu";
 }
 
 class AppRoute {
@@ -89,6 +97,22 @@ class AppRoute {
         GetPage(
             name: RouteName.postMainWrapper,
             page: () => MainWrapper(),
+            transition: Transition.native),
+        GetPage(
+            name: RouteName.postAppFormCreatePath,
+            page: () => PostFormView(),
+            transition: Transition.native),
+        GetPage(
+            name: RouteName.postProfile,
+            page: () => PostProfileView(),
+            transition: Transition.native),
+        GetPage(
+            name: RouteName.postSearch,
+            page: () => PostSearchView(),
+            transition: Transition.native),
+        GetPage(
+            name: RouteName.postMenu,
+            page: () => PostMenuView(),
             transition: Transition.native)
       ];
 }

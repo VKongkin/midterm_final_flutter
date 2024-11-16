@@ -1,22 +1,38 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:product_flutter_app/cors/constants/constants.dart';
-import 'package:product_flutter_app/modules/home/controller/home_controller.dart';
-import 'package:product_flutter_app/post/modules/splash/controller/splash_controller.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 
 class PostAppBarWidget extends StatelessWidget {
-  // final HomeController homeController = Get.put(HomeController());
-  // var splashController = SplashController();
+  final String? appTitle;
+  final double? fontSize;
+  final VoidCallback? onBackTap;
+  final IconData? backIcon;
+  final bool showSearchIcon;
+  final bool showLanguageToggle;
+  final bool showProfileIcon;
+  final VoidCallback? onSearchTap;
+  final VoidCallback? onLanguageToggleTap;
+  final VoidCallback? onProfileTap;
+  final Widget? customSearchBar;
+  final double? iconSize;
 
-  // final AuthRepository authRepository = Get.put(AuthRepository());
-  String? appTitle;
-  VoidCallback? onTab;
-  IconData? icon;
-  double? fontSize;
-  PostAppBarWidget({super.key, this.onTab, this.appTitle, this.icon, this.fontSize});
+  const PostAppBarWidget({
+    Key? key,
+    this.appTitle,
+    this.fontSize,
+    this.onBackTap,
+    this.backIcon,
+    this.showSearchIcon = true,
+    this.showLanguageToggle = true,
+    this.showProfileIcon = true,
+    this.onSearchTap,
+    this.onLanguageToggleTap,
+    this.onProfileTap,
+    this.customSearchBar,
+    this.iconSize,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,190 +40,129 @@ class PostAppBarWidget extends StatelessWidget {
 
     return Container(
       color: Colors.blue,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(left: 16.0, right: 16, top: 32, bottom: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: onTab,
-                    icon: Icon(icon ?? Icons.grid_view_rounded),
-                    color: Colors.white,
-                    style: IconButton.styleFrom(
-                      iconSize: icon == null ? 32 : 25, // Conditional size based on icon
-                    ),
-                  ),
-                  SizedBox(width: 10,),
-                  Text(
-                    appTitle??"",
-                    style: TextStyle(
-                        fontSize: fontSize??15, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ],
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 8,
+        left: 16.0,
+        right: 16.0,
+        bottom: 16.0,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Back Button
+          if (onBackTap != null)
+            IconButton(
+              onPressed: onBackTap,
+              icon: Icon(backIcon ?? Icons.arrow_back_ios, color: Colors.white,size: iconSize ?? 25,),
+            ),
+
+          // Title or Custom Search Bar
+          if (customSearchBar != null)
+            Expanded(
+              child: customSearchBar!,
+            )
+          else
+            Expanded(
+              child: Text(
+                appTitle ?? "",
+                style: TextStyle(
+                  fontSize: fontSize ?? 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
-            Container(
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.notifications),
-                    color: Colors.white,
-                    style: IconButton.styleFrom(iconSize: 32),
-                  ),
-                  InkWell(
-                    onTap: () {
+
+          // Right-side Icons
+          if (customSearchBar == null) ...[
+            if (showSearchIcon)
+              IconButton(
+                onPressed: onSearchTap,
+                icon: Icon(Icons.search, color: Colors.white,size: iconSize ?? 25,),
+              ),
+            if (showLanguageToggle)
+              GestureDetector(
+                onTap: onLanguageToggleTap ??
+                        () {
                       if (storage.read("KEY_LANGUAGE") == "KH") {
-                        var locale = Locale('en', 'US');
+                        var locale = const Locale('en', 'US');
                         Get.updateLocale(locale);
                         storage.write("KEY_LANGUAGE", "US");
                       } else {
-                        var locale = Locale('km', 'KH');
+                        var locale = const Locale('km', 'KH');
                         Get.updateLocale(locale);
                         storage.write("KEY_LANGUAGE", "KH");
                       }
                     },
-                    child: Image.asset(
-                      storage.read("KEY_LANGUAGE") == "KH"
-                          ? Constants.iconKhmerPath
-                          : Constants.iconEnglishPath,
-                      height: 27,
-                      width: 27,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      _showPopupMenu(context);
-                    },
-                    icon: Icon(Icons.account_circle_rounded),
-                    color: Colors.white,
-                    style: IconButton.styleFrom(iconSize: 32),
-                  )
-                ],
+                child: Image.asset(
+                  storage.read("KEY_LANGUAGE") == "KH"
+                      ? Constants.iconKhmerPath
+                      : Constants.iconEnglishPath,
+                  height: 25,
+                  width: 25,
+                ),
               ),
-            )
+            if (showProfileIcon)
+              IconButton(
+                onPressed: onProfileTap ?? () => _showPopupMenu(context),
+                icon: Icon(Icons.account_circle_rounded, color: Colors.white,size: iconSize ?? 25,),
+              ),
           ],
-        ),
+        ],
       ),
     );
   }
 
-  // Function to display the dropdown menu
   void _showPopupMenu(BuildContext context) {
     final storage = GetStorage();
-    var username = storage.read("USER_KEY")["user"]["username"].toString().toUpperCase();
+    var username = storage.read("USER_KEY")?["user"]?["username"]?.toString().toUpperCase() ?? "Username";
     showMenu(
       context: context,
       position: RelativeRect.fromLTRB(100, 100, 16, 0),
-      color: Colors.white, // Adjust the position as needed
+      color: Colors.white,
       items: [
         PopupMenuItem<int>(
           value: 0,
           child: Container(
-            width: 100, // Adjust width here
+            width: 100,
             child: Row(
               children: [
-                // Icon(Icons.home, color: Colors.blue),
-                SizedBox(width: 10),
-                Text(
-                  username != null ? username : "Username",
-                  style: TextStyle(color: Colors.blue),
-                ),
+                Text(username, style: const TextStyle(color: Colors.blue)),
               ],
             ),
           ),
         ),
-        PopupMenuItem<int>(
+        const PopupMenuItem<int>(
           value: 1,
-          child: Container(
-            width: 100, // Adjust width here
-            child: Row(
-              children: [
-                Icon(Icons.home, color: Colors.blue),
-                SizedBox(width: 10),
-                Text(
-                  'Home',
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ],
-            ),
+          child: Row(
+            children: [
+              Icon(Icons.home, color: Colors.blue),
+              SizedBox(width: 10),
+              Text('Home', style: TextStyle(color: Colors.blue)),
+            ],
           ),
         ),
-        PopupMenuItem<int>(
-          value: 2,
-          child: Container(
-            // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-            width: 100, // Adjust width here
-            child: Row(
-              children: [
-                Icon(Icons.shopping_cart, color: Colors.blue),
-                SizedBox(width: 10),
-                Text(
-                  'Cart',
-                  style: TextStyle(color: Colors.blue),
-                )
-              ],
-            ),
-          ),
-        ),
-        PopupMenuItem<int>(
-          value: 3,
-          child: Container(
-            width: 100, // Adjust width here
-            child: Row(
-              children: [
-                Icon(Icons.settings, color: Colors.blue),
-                SizedBox(width: 10),
-                Text(
-                  'Settings',
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ],
-            ),
-          ),
-        ),
-        PopupMenuItem<int>(
+        const PopupMenuItem<int>(
           value: 4,
-          child: Container(
-            width: 100, // Adjust width here
-            child: Row(
-              children: [
-                Icon(Icons.logout, color: Colors.blue),
-                SizedBox(width: 10),
-                Text(
-                  'Log Out',
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ],
-            ),
+          child: Row(
+            children: [
+              Icon(Icons.logout, color: Colors.blue),
+              SizedBox(width: 10),
+              Text('Log Out', style: TextStyle(color: Colors.blue)),
+            ],
           ),
         ),
       ],
       elevation: 8.0,
     ).then((value) {
-      if (value != null) {
-        // Handle menu selection here
-        switch (value) {
-          case 1:
-            print("Home selected");
-            break;
-          case 2:
-            print("Share selected");
-            break;
-          case 3:
-            print("Settings selected");
-            break;
-          case 4:
-            print("Log Out selected");
-            storage.remove("USER_KEY");
-            Get.offAllNamed(RouteName.postSplash);
-            break;
-        }
+      if (value == 4) {
+        storage.remove("USER_KEY");
+        Get.offAllNamed(RouteName.postLogin);
+      } else if (value == 0) {
+        Get.toNamed(RouteName.postProfile);
+      } else if (value == 1) {
+        Get.offAllNamed(RouteName.postRoot);
       }
     });
   }

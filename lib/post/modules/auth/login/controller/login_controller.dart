@@ -151,9 +151,9 @@ class LoginController extends GetxController {
     } on UnAuthorization {
       showCustomToast(message: "Username or Password Invalid!");
     }
-    // catch (e) {
-    //   showCustomToast(message: e.toString());
-    // }
+    catch (e) {
+      showCustomToast(message: e.toString());
+    }
     finally {
       loadingLogin(false);
     }

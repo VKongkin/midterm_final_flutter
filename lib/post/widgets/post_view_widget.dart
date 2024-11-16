@@ -1,5 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:product_flutter_app/post/modules/post/view_model/post_view_model.dart';
+import 'package:product_flutter_app/routes/app_routes.dart';
 
 class PostViewWidget extends StatelessWidget {
   final String profileImageUrl;
@@ -10,6 +13,9 @@ class PostViewWidget extends StatelessWidget {
   final int likeCount;
   final int commentCount;
   final int shareCount;
+  final int postId;
+  final String postTitle;
+  VoidCallback? onTapEdit;
 
   PostViewWidget({
     required this.profileImageUrl,
@@ -20,12 +26,15 @@ class PostViewWidget extends StatelessWidget {
     required this.likeCount,
     required this.commentCount,
     required this.shareCount,
+    required this.postId,
+    required this.postTitle,
+    this.onTapEdit,
   });
 
   @override
   Widget build(BuildContext context) {
+    var viewModel = Get.put(PostViewModel());
     return Card(
-      // margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -56,11 +65,72 @@ class PostViewWidget extends StatelessWidget {
                   ],
                 ),
                 Spacer(),
-                Icon(Icons.more_horiz),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.more_horiz),
+                  onSelected: (String value) {
+                    // Handle the selected menu action here
+                    if (value == 'Edit') {
+                      // onTapEdit;
+                      viewModel.onUpdate(postId.toString());
+                      // Tver update post ot ton der te
+
+                      // Implement edit post functionality
+                      print("EDIT CLICKED ${postId}");
+                      // Get.toNamed(RouteName.postAppFormCreatePath);
+                    } else if (value == 'Delete') {
+                      print("DELETE CLICKED ${postId}");
+                      viewModel.onDeletePost(postId);
+                      // Implement delete post functionality
+                    }
+                    // Add more cases for other actions
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem(
+                      value: 'Edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit),
+                        title: Text('Edit post'),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'Delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete),
+                        title: Text('Delete post'),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'Save',
+                      child: ListTile(
+                        leading: Icon(Icons.bookmark),
+                        title: Text('Save post'),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'Privacy',
+                      child: ListTile(
+                        leading: Icon(Icons.lock),
+                        title: Text('Edit privacy'),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
           SizedBox(height: 2),
+
+          // Post Text
+          if (postTitle.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: Text(
+                postTitle,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: 10),
+          ],
 
           // Post Text
           if (postText.isNotEmpty) ...[
@@ -77,19 +147,11 @@ class PostViewWidget extends StatelessWidget {
           // Post Image
           if (postImageUrl != null && postImageUrl.isNotEmpty)
             ClipRRect(
-              // Uncomment this line if you need rounded corners
-              // borderRadius: BorderRadius.circular(10),
               child: CachedNetworkImage(
                 imageUrl: postImageUrl,
-                width: double.infinity, // Set the image to take full width
-                fit: BoxFit
-                    .cover, // Ensure the image covers the full width and height
-                // placeholder: (context, url) => CircularProgressIndicator(
-                //   strokeWidth: 2.0,
-                //   valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                // ),
-                errorWidget: (context, url, error) =>
-                    SizedBox.shrink(), // Show nothing on error
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => SizedBox.shrink(),
               ),
             ),
 
@@ -105,10 +167,10 @@ class PostViewWidget extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        width: 20, // Adjust size as needed
-                        height: 20, // Adjust size as needed
+                        width: 20,
+                        height: 20,
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(1), // Background color
+                          color: Colors.blue.withOpacity(1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -137,12 +199,10 @@ class PostViewWidget extends StatelessWidget {
             ),
           ),
 
-          // Divider(),
-
           // Like, Comment, Share Buttons
           Padding(
             padding:
-                const EdgeInsets.only(top: 16, bottom: 8, left: 16, right: 16),
+            const EdgeInsets.only(top: 16, bottom: 8, left: 16, right: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -151,8 +211,8 @@ class PostViewWidget extends StatelessWidget {
                     icon: Icons.thumb_up_alt_outlined,
                     label: 'Like',
                   ),
-                  onTap: (){
-                    likeCount ;
+                  onTap: () {
+                    // Handle like action
                   },
                 ),
                 _PostButton(icon: Icons.comment_outlined, label: 'Comment'),

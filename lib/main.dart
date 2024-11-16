@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:product_flutter_app/cors/language/app_language.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
+
+import 'post/modules/category/view_model/post_category_view_model.dart';
 
 void main() async{
   await GetStorage.init();
@@ -10,6 +13,7 @@ void main() async{
   if(storage.read("KEY_LANGUAGE") == null){
     storage.write("KEY_LANGUAGE","KH") ;
   }
+  Get.put(PostCategoryViewModel());
   runApp(const MyApp());
 }
 
@@ -31,7 +35,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      initialRoute: RouteName.postSplash,
+      initialRoute: RouteName.postMainWrapper,
       getPages: AppRoute.appRoutes(),
     );
   }

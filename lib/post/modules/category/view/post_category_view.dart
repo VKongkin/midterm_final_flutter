@@ -43,13 +43,13 @@ class PostCategoryView extends StatelessWidget {
                 color: Colors.blue, // Your desired color for the background
                 padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                 child: PostAppBarWidget(
-                  onTab: () {
+                  onBackTap: () {
                     Get.offNamed(RouteName.postRoot);
                     // rootController.updateIndex(0);
                   },
                   appTitle: Constants.postAppCategoryManageName.tr,
                   fontSize: 17,
-                  icon: Icons.arrow_back_ios,
+                  backIcon: Icons.arrow_back_ios,
                 ),
               ),
 

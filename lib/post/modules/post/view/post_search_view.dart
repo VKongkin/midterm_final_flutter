@@ -7,15 +7,16 @@ import 'package:product_flutter_app/post/widgets/post_app_bar_widget.dart';
 import 'package:product_flutter_app/post/widgets/post_view_widget.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 
-class PostView extends StatefulWidget {
-  PostView({super.key});
+class PostSearchView extends StatefulWidget {
+  PostSearchView({super.key});
 
   @override
-  State<PostView> createState() => _PostViewState();
+  State<PostSearchView> createState() => _PostSearchViewState();
 }
 
-class _PostViewState extends State<PostView> {
+class _PostSearchViewState extends State<PostSearchView> {
   final viewModel = Get.put(PostViewModel());
+  final TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class _PostViewState extends State<PostView> {
         height: 40,
         child: FloatingActionButton(
           onPressed: () {
-            Get.toNamed(RouteName.postAppFormCreatePath);
+            Get.offAllNamed(RouteName.postAppFormCreatePath);
           },
           child: Icon(
             Icons.add,
@@ -38,7 +39,7 @@ class _PostViewState extends State<PostView> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      backgroundColor: Color(0xFFEAECFA),
+      backgroundColor: const Color(0xFFEAECFA),
       body: SafeArea(
         top: false,
         child: Column(
@@ -48,44 +49,91 @@ class _PostViewState extends State<PostView> {
               color: Colors.blue,
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
               child: PostAppBarWidget(
-                backIcon: Icons.grid_view_rounded,
                 onBackTap: () {
-                  // Get.back();
+                  Get.back();
                 },
-                appTitle: Constants.postAppName.tr,
+                customSearchBar: Container(
+                  height: 30, // Fixed height for consistency
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(25.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12.0),
+                        child: Icon(Icons.search, color: Colors.grey),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            viewModel.onSearch(value); // Dynamic search
+                          },
+                          decoration: const InputDecoration(
+                            hintText: "Search here...",
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      if (searchController.text.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12.0), // Adjust padding
+                          child: GestureDetector(
+                            onTap: () {
+                              searchController.clear();
+                              viewModel.onSearch(""); // Reset search
+                            },
+                            child: const Icon(Icons.close, color: Colors.grey, size: 20),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
                 fontSize: 17,
-                onSearchTap: (){
-                  Get.toNamed(RouteName.postSearch);
-                },
-                iconSize: 25,
+                backIcon: Icons.arrow_back_ios,
+                showLanguageToggle: false,
+                showProfileIcon: false,
+                showSearchIcon: false,
               ),
             ),
-
             // Main content with posts list and loading/error handling
             Expanded(
               child: Obx(() {
                 // if (viewModel.loading.value) {
-                //   return Center(child: Text("Loading the data..."));
+                //   return const Center(child: CircularProgressIndicator());
                 // }
 
-                // Display completed state if not loading or error
+                if (viewModel.postSearchList.isEmpty) {
+                  return const Center(child: Text("No results found."));
+                }
+
                 return NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
                     if (!viewModel.loading.value &&
                         scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                      viewModel.loadingDataMore();
+                      // viewModel.loadingDataMoreSearch(searchController.text);
                     }
                     return true;
                   },
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      viewModel.getAllPost();
+                      viewModel.getAllSearchPost(searchController.text); // Reload data
                     },
                     child: ListView.builder(
-                      padding: EdgeInsets.only(bottom: 50),
-                      itemCount: viewModel.postList.length,
+                      padding: const EdgeInsets.only(bottom: 50),
+                      itemCount: viewModel.postSearchList.length,
                       itemBuilder: (context, index) {
-                        var data = viewModel.postList[index];
+                        var data = viewModel.postSearchList[index];
                         return PostViewWidget(
                           profileImageUrl: data.user!.profile != null && data.user!.profile!.isNotEmpty
                               ? "${ApiUrl.postGetImagePath}${data.user!.profile}"
@@ -99,11 +147,10 @@ class _PostViewState extends State<PostView> {
                           likeCount: data.totalView!,
                           commentCount: 2,
                           shareCount: 3,
-                          postId: data.id!,
                           postTitle: data.title!,
-                          onTapEdit: (){
+                          postId: data.id!,
+                          onTapEdit: () {
                             setState(() {
-                              print("object");
                               viewModel.onUpdate(data.id.toString());
                             });
                           },
