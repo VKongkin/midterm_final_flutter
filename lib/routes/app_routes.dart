@@ -16,6 +16,8 @@ import 'package:product_flutter_app/post/modules/post/view/post_view.dart';
 import 'package:product_flutter_app/post/modules/root/view/root_view.dart';
 import 'package:product_flutter_app/post/modules/splash/view/splash_view.dart';
 import 'package:product_flutter_app/post/modules/root/view/main_wrapper.dart';
+import 'package:product_flutter_app/post/modules/user/view/user_management_view.dart';
+import 'package:product_flutter_app/post/modules/user/view/user_profile_update_view.dart';
 import 'package:product_flutter_app/toastAndLoader/product_card_list_loading_shimmer.dart';
 import 'package:product_flutter_app/toastAndLoader/shimmer_loading_screen.dart';
 
@@ -38,6 +40,8 @@ class RouteName {
   static const String postProfile = "/post/profile";
   static const String postSearch = "/post/search";
   static const String postMenu = "/post/menu";
+  static const String postUserManagement = "/post/admin/user";
+  static const String postUserUpdate = "/post/admin/user/update";
 }
 
 class AppRoute {
@@ -113,6 +117,14 @@ class AppRoute {
         GetPage(
             name: RouteName.postMenu,
             page: () => PostMenuView(),
+            transition: Transition.native),
+        GetPage(
+            name: RouteName.postUserManagement,
+            page: () => UserManagementView(),
+            transition: Transition.native),
+        GetPage(
+            name: RouteName.postUserUpdate,
+            page: () => UserProfileUpdateView(),
             transition: Transition.native)
       ];
 }

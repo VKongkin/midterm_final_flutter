@@ -17,11 +17,11 @@ class PostCategoryViewModel extends GetxController{
 
   @override
   void onInit() {
-    _loadingCategoryData();
+    loadingCategoryData();
     super.onInit();
   }
 
-  _loadingCategoryData() async{
+  loadingCategoryData() async{
     setLoadingRequestAllCategoryStatus(Status.loading);
     await _fetchAllCategories();
     setLoadingRequestAllCategoryStatus(Status.completed);

@@ -20,9 +20,9 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
     super.initState();
     print("INIT STATE");
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    Future.delayed(const Duration(seconds: 3),(){
-      Get.offAllNamed(RouteName.postRoot);
-    });
+    // Future.delayed(const Duration(seconds: 3),(){
+    //   Get.offAllNamed(RouteName.postRoot);
+    // });
   }
 
   @override

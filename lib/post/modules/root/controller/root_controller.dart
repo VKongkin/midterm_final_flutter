@@ -1,7 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:product_flutter_app/modules/auth/login_response.dart';
-import 'package:product_flutter_app/repository/post/post_repository.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 
 class RootController extends GetxController {
@@ -18,6 +17,22 @@ class RootController extends GetxController {
   void onInit() {
     _getAdminUser();
     super.onInit();
+  }
+
+  List<Map<String, dynamic>> getNavItems() {
+    bool isUser = userRole.value.contains("ROLE_USER");
+    bool isAdmin = userRole.value.contains("ROLE_ADMIN");
+
+    return [
+      if (isUser) {"icon": Icons.home, "label": "Home", "route": RouteName.postRoot},
+      if (isAdmin) {
+        "icon": Icons.category_rounded,
+        "label": "Category",
+        "route": RouteName.postManageCategory,
+      },
+      {"icon": Icons.person, "label": "Profile", "route": RouteName.postProfile},
+      if (isUser) {"icon": Icons.menu, "label": "Menu", "route": RouteName.postMenu},
+    ];
   }
 
   _getAdminUser(){

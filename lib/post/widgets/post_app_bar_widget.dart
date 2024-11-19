@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:product_flutter_app/cors/constants/constants.dart';
+import 'package:product_flutter_app/post/modules/root/controller/bottom_nav_controller.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 
 class PostAppBarWidget extends StatelessWidget {
@@ -54,7 +55,7 @@ class PostAppBarWidget extends StatelessWidget {
           if (onBackTap != null)
             IconButton(
               onPressed: onBackTap,
-              icon: Icon(backIcon ?? Icons.arrow_back_ios, color: Colors.white,size: iconSize ?? 25,),
+              icon: Icon(backIcon ?? Icons.arrow_back_ios, color: Colors.white,size: iconSize == 30 ? iconSize: 30,),
             ),
 
           // Title or Custom Search Bar
@@ -79,7 +80,7 @@ class PostAppBarWidget extends StatelessWidget {
             if (showSearchIcon)
               IconButton(
                 onPressed: onSearchTap,
-                icon: Icon(Icons.search, color: Colors.white,size: iconSize ?? 25,),
+                icon: Icon(Icons.search, color: Colors.white,size: iconSize == 30 ? iconSize: 30,),
               ),
             if (showLanguageToggle)
               GestureDetector(
@@ -106,7 +107,7 @@ class PostAppBarWidget extends StatelessWidget {
             if (showProfileIcon)
               IconButton(
                 onPressed: onProfileTap ?? () => _showPopupMenu(context),
-                icon: Icon(Icons.account_circle_rounded, color: Colors.white,size: iconSize ?? 25,),
+                icon: Icon(Icons.account_circle_rounded, color: Colors.white,size: iconSize == 30 ? iconSize: 30,),
               ),
           ],
         ],
@@ -115,6 +116,7 @@ class PostAppBarWidget extends StatelessWidget {
   }
 
   void _showPopupMenu(BuildContext context) {
+    final BottomNavController controller = Get.find<BottomNavController>();
     final storage = GetStorage();
     var username = storage.read("USER_KEY")?["user"]?["username"]?.toString().toUpperCase() ?? "Username";
     showMenu(
@@ -124,12 +126,14 @@ class PostAppBarWidget extends StatelessWidget {
       items: [
         PopupMenuItem<int>(
           value: 0,
-          child: Container(
-            width: 100,
-            child: Row(
-              children: [
-                Text(username, style: const TextStyle(color: Colors.blue)),
-              ],
+          child: Center(
+            child: Container(
+              width: 120,
+              child: Row(
+                children: [
+                  Text(username, style: const TextStyle(color: Colors.blue)),
+                ],
+              ),
             ),
           ),
         ),
@@ -160,7 +164,8 @@ class PostAppBarWidget extends StatelessWidget {
         storage.remove("USER_KEY");
         Get.offAllNamed(RouteName.postLogin);
       } else if (value == 0) {
-        Get.toNamed(RouteName.postProfile);
+        print("GO TO PF");
+        controller.updateIndex(2);
       } else if (value == 1) {
         Get.offAllNamed(RouteName.postRoot);
       }

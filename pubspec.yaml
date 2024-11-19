@@ -51,6 +51,7 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   http_parser: ^4.0.0
   mime: ^2.0.0
+  flutter_launcher_icons: ^0.14.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -81,6 +82,8 @@ flutter:
     - assets/images/icons/english.png
     - assets/images/icons/khmer.png
     - assets/images/icons/no.png
+    - assets/images/icons/logo_post_app.png
+    - assets/images/icons/no_user.jpg
     # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
@@ -106,3 +109,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_icons:
+  android: true
+  ios: true
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/icons/app_ic_foreground.png"
+  image_path: "assets/images/icons/logo_post_app.png"

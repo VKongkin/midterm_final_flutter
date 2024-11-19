@@ -37,9 +37,9 @@ class SplashController extends GetxController with SingleGetTickerProviderMixin{
     animationController.forward();
 
     // Navigate to the next screen after 3 seconds
-    Future.delayed(Duration(seconds: 3), () {
-      Get.offAllNamed(RouteName.postRoot); // Replace '/home' with your actual route name
-    });
+    // Future.delayed(Duration(seconds: 3), () {
+    //   Get.offAllNamed(RouteName.postMainWrapper); // Replace '/home' with your actual route name
+    // });
   }
 
   @override
@@ -56,21 +56,21 @@ class SplashController extends GetxController with SingleGetTickerProviderMixin{
     bool isFirstLaunch = prefs.getBool('isFirstLaunch') ?? false;
     print("CHECK LAUNCH ${isFirstLaunch}");
 
-    if (isFirstLaunch == false) {
+    if (isFirstLaunch == true) {
       // Display the splash screen animation for the first launch
-      await Future.delayed(Duration(seconds: 3)); // Display for 3 seconds
-      prefs.setBool('isFirstLaunch', true); // Update to mark as not first launch
+      await Future.delayed(Duration(seconds: 2)); // Display for 3 seconds
+      prefs.setBool('isFirstLaunch', false); // Update to mark as not first launch
     }
     if (user.user == null) {
       print("NO USER FOUND");
-      await Future.delayed(Duration(seconds: 3));  // Await the delay to pause execution
+      await Future.delayed(Duration(seconds: 2));  // Await the delay to pause execution
       Get.offAllNamed(RouteName.postLogin);
-
+      return;
     } else {
       print("USER IS NOT NULL");
       username = user.user!.username!;
-      await Future.delayed(Duration(seconds: 3));  // Await the delay to pause execution
-      Get.offAllNamed(RouteName.postRoot);
+      await Future.delayed(Duration(seconds: 2));  // Await the delay to pause execution
+      Get.offAllNamed(RouteName.postMainWrapper);
       showCustomToast(message: "WELCOME BACK ${user.user!.username!.toUpperCase()}");
     }
 

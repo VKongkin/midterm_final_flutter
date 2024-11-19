@@ -14,10 +14,14 @@ class ApiUrl{
   static const String postAppCreateCategoryPath = "$baseUrlPostApp/api/app/category/create";
   static const String postAppGetCategoryByIdPath = "$baseUrlPostApp/api/app/category/";
   static const String postGetAllPath = "$baseUrlPostApp/api/app/post/list";
+  static const String postGetAllUsersByAdminPath = "$baseUrlPostApp/api/app/admin/user/list";
   static const String postCreatePath = "$baseUrlPostApp/api/app/post/create";
   static const String postDeletePath = "$baseUrlPostApp/api/app/post/delete";
   static const String postGetByIdPath = "$baseUrlPostApp/api/app/post/";
   static const String postGetImagePath = "$baseUrlPostApp/api/public/view/image?filename=";
   static const String postUploadImagePath = "$baseUrlPostApp/app/public/v1/image/upload";
+  static const String postGetUserByIdPath = "$baseUrlPostApp/api/app/user/";
+  static const String postUpdateProfilePath = "$baseUrlPostApp/api/app/user/update";
+  static const String postUserManagePath = "$baseUrlPostApp/api/app/admin/user/update";
 
 }

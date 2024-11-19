@@ -25,7 +25,7 @@ class _PostViewState extends State<PostView> {
         height: 40,
         child: FloatingActionButton(
           onPressed: () {
-            Get.toNamed(RouteName.postAppFormCreatePath);
+            viewModel.onCreate();
           },
           child: Icon(
             Icons.add,
@@ -92,6 +92,8 @@ class _PostViewState extends State<PostView> {
                               : Constants.iconNoImage,
                           userName: data.createBy!,
                           timestamp: data.createAt!,
+                          firstName: data.user!.firstName!,
+                          lastName: data.user!.lastName!,
                           postText: data.description!,
                           postImageUrl: data.image != null && data.image!.isNotEmpty
                               ? "${ApiUrl.postGetImagePath}${data.image}"

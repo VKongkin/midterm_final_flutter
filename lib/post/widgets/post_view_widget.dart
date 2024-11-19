@@ -15,6 +15,8 @@ class PostViewWidget extends StatelessWidget {
   final int shareCount;
   final int postId;
   final String postTitle;
+  final String firstName;
+  final String lastName;
   VoidCallback? onTapEdit;
 
   PostViewWidget({
@@ -29,12 +31,15 @@ class PostViewWidget extends StatelessWidget {
     required this.postId,
     required this.postTitle,
     this.onTapEdit,
+    required this.firstName,
+    required this.lastName,
   });
 
   @override
   Widget build(BuildContext context) {
     var viewModel = Get.put(PostViewModel());
     return Card(
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -55,7 +60,7 @@ class PostViewWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      userName,
+                      "$firstName $lastName",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
@@ -126,7 +131,7 @@ class PostViewWidget extends StatelessWidget {
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: Text(
                 postTitle,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 14),
               ),
             ),
             SizedBox(height: 10),
@@ -138,7 +143,7 @@ class PostViewWidget extends StatelessWidget {
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: Text(
                 postText,
-                style: TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: 14,color: Colors.grey[600]),
               ),
             ),
             SizedBox(height: 10),

@@ -9,6 +9,7 @@ import 'package:product_flutter_app/models/postmodel/base_post_request.dart';
 import 'package:product_flutter_app/models/postmodel/post_category.dart';
 import 'package:product_flutter_app/post/modules/post/Post_request.dart';
 import 'package:product_flutter_app/post/modules/post/category.dart';
+import 'package:product_flutter_app/post/modules/post/view_model/post_view_model.dart';
 import 'package:product_flutter_app/repository/post/post_repository.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
 import 'package:product_flutter_app/toastAndLoader/toastMessage.dart';
@@ -27,9 +28,15 @@ class PostFormViewModel extends GetxController {
   var requestLoadingPost = Status.loading.obs;
   var imageFilePath = "".obs;
   var createdByUser = "".obs;
+  var loading = false.obs;
   File? selectedImage;
   void setRequestLoadingPost(Status value) => requestLoadingPost.value = value;
   var storage = GetStorage();
+  var username = "".obs;
+  var firstname = "".obs;
+  var lastname = "".obs;
+  var userImage = "".obs;
+  var loadingUser = false.obs;
 
   // Category data
   var categories = <PostCategory>[].obs; // List of PostCategory objects
@@ -39,9 +46,26 @@ class PostFormViewModel extends GetxController {
 
   @override
   Future<void> onInit() async {
+    await getUserInfo();
     await _getPostById();
     super.onInit();
     loadCategories(); // Load categories on init
+  }
+
+  getUserInfo(){
+    var data = storage.read("USER_KEY");
+    print("GETTING USER $data");
+    if(data != null){
+      try {
+        loadingUser(true);
+        username.value = data['user']['username'];
+        firstname.value = data['user']['firstName'];
+        lastname.value = data['user']['lastName'];
+        userImage.value = data['user']['profile'];
+      }finally{
+        loadingUser(false);
+      }
+    }
   }
 
   getImagePath(String imagePath)
@@ -50,12 +74,13 @@ class PostFormViewModel extends GetxController {
   }
   _getPostById() async{
     try{
+      loading(true);
       int id = int.parse(Get.parameters["id"]??"0");
       postRequest.value.id = id;
       if(id!=0){
         var baseRequest = BasePostRequest(status:"ACT",id: id);
         var response = await postRepository.getAllPostsById(baseRequest);
-
+        print("POST RESPONSE UPDATE ${response.data}");
         if(response.code == "SUC-000"){
           postRequest.value = PostRequest.fromJson(response.data);
           postTitleController.value.text = postRequest.value.title ?? "";
@@ -81,7 +106,7 @@ class PostFormViewModel extends GetxController {
         }
       }
     }finally{
-
+      loading(false);
     }
   }
 
@@ -148,10 +173,9 @@ class PostFormViewModel extends GetxController {
       postRequest.value.image = filenameUploaded.value;
       postRequest.value.updateAt = "";
       postRequest.value.createBy = createUser.value;
-
       postRequest.value.updateBy = userName;
       postRequest.value.id = id;
-      postRequest.value.title = "Post Status from ${userName}";
+      postRequest.value.title = postTitleController.value.text;
       postRequest.value.category = selectedCategory.value!.toCategory();
       postRequest.value.status = selectedStatus.value;
       postRequest.value.description = postDescriptionController.value.text;
@@ -162,7 +186,8 @@ class PostFormViewModel extends GetxController {
       print(filenameUploaded);
       if(response.code == "SUC-000"){
         showCustomToast(message: response.message!);
-        Get.offAllNamed(RouteName.postManagePath);
+        // Get.find<PostViewModel>().loadingData();
+        Get.back(result: true);
       }else{
         showCustomToast(message: response.message!);
       }

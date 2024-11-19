@@ -4,12 +4,17 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:product_flutter_app/data/remote/api_url.dart';
 import 'package:product_flutter_app/data/remote/network_api_service.dart';
+import 'package:product_flutter_app/models/postmodel/base_post_request.dart';
 import 'package:product_flutter_app/models/postmodel/login/login_request.dart';
 import 'package:product_flutter_app/models/postmodel/login/login_response.dart';
 import 'package:product_flutter_app/models/postmodel/post_base_response.dart';
 import 'package:product_flutter_app/models/postmodel/post_upload_response.dart';
 import 'package:product_flutter_app/models/postmodel/register/register_request.dart';
 import 'package:product_flutter_app/models/postmodel/register/register_response.dart';
+import 'package:product_flutter_app/models/postmodel/response/user.dart';
+import 'package:product_flutter_app/models/postmodel/response/user_res.dart';
+import 'package:product_flutter_app/models/postmodel/user_update_req/User_request.dart';
+
 import 'package:product_flutter_app/routes/app_routes.dart';
 import 'package:http/http.dart' as http;
 import 'package:product_flutter_app/toastAndLoader/toastMessage.dart';
@@ -25,6 +30,11 @@ class LoginRepository {
         await _api.loginApi(ApiUrl.postAppLoginPath, requestBody.toJson());
     loginResponse = LoginResponse.fromJson(response);
     return loginResponse;
+  }
+
+  Future<PostUploadResponse> getUserById(BasePostRequest req) async{
+    var response = await _api.postApi(ApiUrl.postGetUserByIdPath+req.userId.toString(), req.toJson());
+    return PostUploadResponse.fromJson(response);
   }
 
   Future<RegisterResponse> register({
@@ -53,40 +63,32 @@ class LoginRepository {
     return registerResponse;
   }
 
-  Future<PostUploadResponse> uploadImage(File imageFile) async {
-    var uploadImageResponse = new PostUploadResponse();
-
-    // Define the API endpoint
-    final url = Uri.parse(ApiUrl.postUploadImagePath);
-
-    // Create the multipart request
-    var request = http.MultipartRequest('POST', url);
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'File', // Name parameter expected by your API
-        imageFile.path,
-      ),
-    );
-
-    // try {
-    // Send the request
-    var streamedResponse = await request.send();
-    // var response = await http.Response.fromStream(streamedResponse);
-
-    var response = await _api.postApiUploadImage(
-        ApiUrl.postUploadImagePath, request.files as File);
-    // Handle the response
-    if (response.statusCode == 200) {
-      // Parse JSON response into your custom response model
-      uploadImageResponse = PostUploadResponse.fromJson(response.body);
-    } else {
-      throw Exception("Failed to upload image: ${response.statusCode}");
+  Future<PostUploadResponse> updateProfile (UserRes req) async{
+    var response = await _api.postApi(ApiUrl.postUpdateProfilePath, req.toJson());
+    if(response['code']=="200"){
+      var refreshToken = await _api.onRefreshToken();
+      print("RETURN AFTER REFRESH ${refreshToken}");
+      var storage = GetStorage();
+      storage.write("USER_KEY", refreshToken);
     }
-    // } catch (e) {
-    //   throw Exception("Error uploading image: $e");
-    // }
+    return PostUploadResponse.fromJson(response);
+  }
 
-    return uploadImageResponse;
+  Future<PostUploadResponse> manageUserProfile (UserRequest req) async{
+    var response = await _api.postApi(ApiUrl.postUserManagePath, req.toJson());
+    if(response['code']=="200"){
+      var refreshToken = await _api.onRefreshToken();
+      print("RETURN AFTER REFRESH ${refreshToken}");
+      var storage = GetStorage();
+      storage.write("USER_KEY", refreshToken);
+    }
+    return PostUploadResponse.fromJson(response);
+  }
+
+
+  Future<PostBaseResponse> uploadImage(File imageFile) async {
+    var response = await _api.uploadImage(imageFile);
+    return PostBaseResponse.fromJson(response);
   }
 
   Future<void> saveUserLocal(LoginResponse data) async {

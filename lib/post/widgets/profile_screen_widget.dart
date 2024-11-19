@@ -1,19 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:product_flutter_app/cors/constants/constants.dart';
 import 'package:product_flutter_app/data/remote/api_url.dart';
+import 'package:product_flutter_app/post/modules/post/view_model/post_view_model.dart';
+import 'package:product_flutter_app/post/modules/root/controller/root_controller.dart';
+import 'package:product_flutter_app/post/widgets/user_screen_widget.dart';
 
 class ProfileScreenWidget extends StatelessWidget {
+  final RootController rootController = Get.find<RootController>();
+  final PostViewModel controller = Get.find<PostViewModel>();
   final String firstName;
   final String lastName;
+  final String username;
   final String? imagePath;
+  final String? phoneNumber;
+  final String? email;
+  final int? userId;
+  final bool? isAdmin;
+  VoidCallback? onEditTap;
 
   ProfileScreenWidget({
     required this.firstName,
     required this.lastName,
     this.imagePath,
+    this.onEditTap,
+    required this.username,
+    this.userId,
+    this.isAdmin,
+    this.phoneNumber,
+    this.email,
   });
+
+  final List<Map<String, String>> friendsList = [
+    {'name': 'Smei', 'image': 'https://via.placeholder.com/150'}, // Example with no profile picture
+    {'name': 'Sreyphat Loun', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'Phearun Sorl', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'Pheap Sophit', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'Mol', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'User 6', 'image': 'https://via.placeholder.com/150'},
+  ];
+
   @override
   Widget build(BuildContext context) {
+    // Check user role and conditionally render the buttons
+    String role = rootController.userRole.value;
+    bool isUser = role.contains("ROLE_USER");
+    bool isAdmin = role.contains("ROLE_ADMIN");
     return Column(
       children: [
         Stack(
@@ -56,10 +88,15 @@ class ProfileScreenWidget extends StatelessWidget {
         Text(
           "${firstName} ${lastName}",
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.grey[600],
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          "@${username}",
+          style: TextStyle(color: Colors.grey[400],fontSize: 18),
         ),
         SizedBox(height: 4),
         Text(
@@ -95,11 +132,11 @@ class ProfileScreenWidget extends StatelessWidget {
               //   ),
               // ),
               OutlinedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.edit, color: Colors.white),
+                onPressed: onEditTap,
+                icon: Icon(Icons.edit, color: Colors.grey[500]),
                 label: Text(
                   "Edit profile",
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.grey[500]),
                 ),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: Colors.blue),
@@ -115,7 +152,7 @@ class ProfileScreenWidget extends StatelessWidget {
                       EdgeInsets.all(8), // Adjust padding for a square button
                   shape: CircleBorder(), // Makes the button circular
                 ),
-                child: Icon(Icons.more_horiz, color: Colors.white),
+                child: Icon(Icons.more_horiz, color: Colors.grey[500]),
               ),
             ],
           ),
@@ -132,28 +169,34 @@ class ProfileScreenWidget extends StatelessWidget {
             ],
           ),
         ),
-        Divider(color: Colors.grey[800]),
-        buildDetailItem(Icons.link, "http://linkedin.com/in/kongkin"),
+        Divider(color: Colors.grey[300]),
+        userId != 8 ? SizedBox.shrink() : buildDetailItem(Icons.link, "http://linkedin.com/in/kongkin"),
         buildDetailItem(Icons.home, "Lives in Phnom Penh"),
-        buildDetailItem(Icons.location_on, "From Siem Reap"),
-        buildDetailItem(Icons.favorite, "Married with Smeī"),
-        buildDetailItem(Icons.rss_feed, "Followed by 686 people"),
+        buildDetailItem(Icons.location_on, userId != 8 ? "From Phnom Penh" :  "From Siem Reap"),
+        buildDetailItem(Icons.favorite, userId != 8 ?  "Single" : "Married with Smeī"),
+        buildDetailItem(Icons.rss_feed, userId != 8 ? "Followed by 2 people" :  "Followed by 686 people"),
+        buildDetailItem(Icons.phone_android_rounded, "$phoneNumber" ),
+        buildDetailItem(Icons.email_rounded, "$email" ),
         SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: OutlinedButton(
-            onPressed: () {},
-            child: Text(
-              "Edit public details",
-              style: TextStyle(color: Colors.blue),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.blue),
-              padding: EdgeInsets.symmetric(vertical: 12),
-            ),
-          ),
-        ),
-        SizedBox(height: 20),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 5),
+        //   child: OutlinedButton(
+        //     onPressed: () {},
+        //     child: Text(
+        //       "Edit public details",
+        //       style: TextStyle(color: Colors.blue),
+        //     ),
+        //     style: OutlinedButton.styleFrom(
+        //       side: BorderSide(color: Colors.blue),
+        //       padding: EdgeInsets.symmetric(vertical: 8),
+        //     ),
+        //   ),
+        // ),
+        // SizedBox(height: 20),
+        if(isAdmin)
+        UserScreenWidget(
+          friendsList: controller.usersList.value,
+        )
       ],
     );
   }
@@ -186,7 +229,7 @@ class ProfileScreenWidget extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.grey),
             ),
           ),
         ],

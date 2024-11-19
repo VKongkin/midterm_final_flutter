@@ -38,6 +38,11 @@ class PostRepository {
     return PostBaseResponse.fromJson(response);
   }
 
+  Future<PostBaseResponse> getAllUsers(PostBaseRequest req) async{
+    var response = await _api.postApi(ApiUrl.postGetAllUsersByAdminPath, req.toJson());
+    return PostBaseResponse.fromJson(response);
+  }
+
   Future<PostBaseResponse> getAllPostsById(BasePostRequest req) async{
     var response = await _api.postApi(ApiUrl.postGetByIdPath+req.id.toString(), req.toJson());
     return PostBaseResponse.fromJson(response);

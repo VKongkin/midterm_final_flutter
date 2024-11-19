@@ -6,6 +6,7 @@ import 'package:product_flutter_app/models/postmodel/base_post_request.dart';
 import 'package:product_flutter_app/models/postmodel/post_base_request.dart';
 import 'package:product_flutter_app/models/postmodel/post_base_response.dart';
 import 'package:product_flutter_app/models/postmodel/response/post_response.dart';
+import 'package:product_flutter_app/models/postmodel/response/user.dart';
 import 'package:product_flutter_app/post/modules/post/post_request.dart';
 import 'package:product_flutter_app/repository/post/post_repository.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
@@ -17,12 +18,21 @@ class PostViewModel extends GetxController {
   var postList = <PostResponse>[].obs;
   var postSearchList = <PostResponse>[].obs;
   var postProfileList = <PostResponse>[].obs;
+  var usersList = <User>[].obs;
+  var filteredUsersList = <User>[].obs;
   var loading = true.obs;
+  var loadingScreen = true.obs;
   var currentPage = 0.obs;
   var firstname = "".obs;
   var lastname = "".obs;
+  int userId = 0;
   var imagepath = "".obs;
+  var username = "".obs;
+  var phoneNumber = "".obs;
+  var email = "".obs;
+  var userRole = "".obs;
   var postRequest = PostRequest().obs;
+  final TextEditingController searchController = TextEditingController();
   var requestLoadingPostStatus = Status.loading.obs;
   void setRequestLoadingPostStatus(Status value) {
     requestLoadingPostStatus.value = value;
@@ -31,14 +41,64 @@ class PostViewModel extends GetxController {
   final _postRepository = PostRepository();
 
   @override
-  void onInit() {
-
+  Future<void> onInit() async {
+    await getAllUsers();
     loadingData();
+    fetchUser();
     print(imagepath);
     super.onInit();
+
+    searchController.addListener(() {
+      filterUsersList(searchController.text);
+    });
+  }
+
+  getAllUsers() async {
+    usersList.value = [];
+    var data = storage.read("USER_KEY");
+    var role = data['user']['roles'];
+    userRole.value = role.toString();
+    bool isUser = userRole.value.contains("ROLE_USER");
+    bool isAdmin = userRole.value.contains("ROLE_ADMIN");
+    if (isAdmin) {
+      try {
+        loadingScreen(true);
+        var request = PostBaseRequest();
+        var response = await _postRepository.getAllUsers(request);
+        print("RESPONSE USER ${response.data}");
+        if (response.data != null) {
+          response.data.forEach((data) {
+            usersList.add(User.fromJson(data));
+          });
+        }
+        // Initially, the filtered list is the same as the full list
+        filteredUsersList.value = usersList;
+      } finally {
+        loadingScreen(false);
+
+      }
+    }
+  }
+
+  // Filter users based on the search query
+  void filterUsersList(String query) {
+    if (query.isEmpty) {
+      // If the query is empty, show all users
+      filteredUsersList.value = usersList;
+    } else {
+      // Filter based on firstName, lastName, or username (case-insensitive)
+      filteredUsersList.value = usersList.where((user) {
+        return (user.firstName?.toLowerCase().contains(query.toLowerCase()) ?? false) ||
+            (user.lastName?.toLowerCase().contains(query.toLowerCase()) ?? false) ||
+            (user.username?.toLowerCase().contains(query.toLowerCase()) ?? false);
+      }).toList();
+
+      print(filteredUsersList);
+    }
   }
 
   loadingData() {
+    print("ON LOADING DATA");
     setRequestLoadingPostStatus(Status.loading);
     try {
       getAllPost();
@@ -57,7 +117,6 @@ class PostViewModel extends GetxController {
     }
   }
 
-
   loadingDataMoreSearch(String name) {
     setRequestLoadingPostStatus(Status.loading);
     try {
@@ -71,32 +130,47 @@ class PostViewModel extends GetxController {
     setRequestLoadingPostStatus(Status.loading);
     try {
       getAllPostMoreProfilePost(1);
-
     } finally {
       setRequestLoadingPostStatus(Status.completed);
     }
   }
 
-  getAllPost() async {
-    var data = storage.read("USER_KEY");
-    var userId = data['user']['id'];
-    firstname.value = data['user']['firstName'];
-    lastname.value = data['user']['lastName'];
-    imagepath.value = data['user']['profile'];
-    print("PRINT PROFILE ${firstname} ${lastname} ${imagepath}");
-    var request = PostBaseRequest();
-    postList.value = [];
+  fetchUser() {
     try {
-      loading(true);
-      request = PostBaseRequest(status: "ACT");
-      var response = await _postRepository.getAllPosts(request);
-      if (response.data != null) {
-        response.data.forEach((data) {
-          postList.add(PostResponse.fromJson(data));
-        });
+      loadingScreen(true);
+      var data = storage.read("USER_KEY");
+      if (data != null) {
+        userId = data['user']['id'];
+        firstname.value = data['user']['firstName'];
+        lastname.value = data['user']['lastName'];
+        imagepath.value = data['user']['profile'];
+        username.value = data['user']['username'];
+        phoneNumber.value = data['user']['phoneNumber'];
+        email.value = data['user']['email'];
+        print("PRINT PROFILE ${firstname} ${lastname} ${imagepath} $username");
       }
     } finally {
-      loading(false);
+      loadingScreen(false);
+    }
+  }
+
+  getAllPost() async {
+    var data = storage.read("USER_KEY");
+    if (data != null) {
+      var request = PostBaseRequest();
+      postList.value = [];
+      try {
+        loading(true);
+        request = PostBaseRequest(status: "ACT");
+        var response = await _postRepository.getAllPosts(request);
+        if (response.data != null) {
+          response.data.forEach((data) {
+            postList.add(PostResponse.fromJson(data));
+          });
+        }
+      } finally {
+        loading(false);
+      }
     }
   }
 
@@ -111,7 +185,7 @@ class PostViewModel extends GetxController {
     postSearchList.value = [];
     try {
       loading(true);
-      request = PostBaseRequest(name: name,status: "ACT");
+      request = PostBaseRequest(name: name, status: "ACT");
       var response = await _postRepository.getAllPosts(request);
       if (response.data != null) {
         response.data.forEach((data) {
@@ -130,11 +204,13 @@ class PostViewModel extends GetxController {
     // lastname.value = data['user']['lastName'];
     // imagepath.value = data['user']['profile'];
     // print("PRINT PROFILE ${firstname} ${lastname} ${imagepath}");
-    var request = PostBaseRequest(userId: userId,);
+    var request = PostBaseRequest(
+      userId: userId,
+    );
     postProfileList.value = [];
     try {
-      loading(true);
-      request = PostBaseRequest(userId: userId,status: "ACT");
+      loadingScreen(true);
+      request = PostBaseRequest(userId: userId, status: "ACT");
       var response = await _postRepository.getAllPosts(request);
       if (response.data != null) {
         response.data.forEach((data) {
@@ -142,7 +218,7 @@ class PostViewModel extends GetxController {
         });
       }
     } finally {
-      loading(false);
+      loadingScreen(false);
     }
   }
 
@@ -193,6 +269,7 @@ class PostViewModel extends GetxController {
       current = (totalPage / limitPage)
           .ceil(); // .ceil() rounds up to the nearest integer
     }
+    current -=1;
     // current = (totalPage/limitPage!) as dynamic;
 
     print(
@@ -206,6 +283,7 @@ class PostViewModel extends GetxController {
       request = PostBaseRequest(userId: userId, status: "ACT", page: current);
       print(request.status);
       var response = await _postRepository.getAllPosts(request);
+      print("NEXT PAGE ${response.data}");
       if (response.data != null) {
         response.data.forEach((data) {
           postProfileList.add(PostResponse.fromJson(data));
@@ -213,6 +291,7 @@ class PostViewModel extends GetxController {
       }
     } finally {
       // requestLoadingPostStatus(Status.completed);
+      print(postProfileList.length);
       loading(false);
       // Pause on cannot make loading data more
     }
@@ -256,16 +335,18 @@ class PostViewModel extends GetxController {
   }
 
   _getAllPostByUserId() async {
+    postProfileList.value = [];
     var data = storage.read("USER_KEY");
-    var userId = data['user']['id'];
-
-    // print(data['user']['id']);
-    var request = PostBaseRequest(userId: userId, status: "ACT");
-    var response = await _postRepository.getAllPosts(request);
-    if (response.data != null) {
-      response.data.forEach((data) {
-        postProfileList.add(PostResponse.fromJson(data));
-      });
+    if (data != null) {
+      var userId = data['user']['id'];
+      // print(data['user']['id']);
+      var request = PostBaseRequest(userId: userId, status: "ACT");
+      var response = await _postRepository.getAllPosts(request);
+      if (response.data != null) {
+        response.data.forEach((data) {
+          postProfileList.add(PostResponse.fromJson(data));
+        });
+      }
     }
   }
 
@@ -286,9 +367,9 @@ class PostViewModel extends GetxController {
 
       // Step 4: Call deletePost with the updated PostResponse
       var delResponse = await _postRepository.deletePost(postResponse);
-      if(delResponse.code ==  "SUC-000"){
+      if (delResponse.code == "SUC-000") {
         loadingData();
-      }else{
+      } else {
         showCustomToast(message: delResponse.message!);
       }
 
@@ -300,14 +381,27 @@ class PostViewModel extends GetxController {
 
   void onUpdate(String id) {
     print("ON UPDATE");
-    Get.toNamed(RouteName.postAppFormCreatePath, parameters: {
-      "id":"${id}"
-    })?.then((onValue){
-      if(onValue == true){
+    Get.toNamed(RouteName.postAppFormCreatePath, parameters: {"id": "${id}"})
+        ?.then((onValue) {
+      if (onValue == true) {
         print("ON VALUE TRUE");
         postList.value = [];
         showCustomToast(message: "Category Updated Successfully");
         getAllPost();
+        getAllProfilePost();
+      }
+    });
+  }
+
+  void onCreate() {
+    print("ON Create");
+    Get.toNamed(RouteName.postAppFormCreatePath)?.then((onValue) {
+      if (onValue == true) {
+        print("ON VALUE TRUE");
+        postList.value = [];
+        // showCustomToast(message: "Category Updated Successfully");
+        getAllPost();
+        getAllProfilePost();
       }
     });
   }
@@ -318,7 +412,7 @@ class PostViewModel extends GetxController {
       return; // Exit if search query is empty
     }
     loading(true); // Indicate loading state
-    postSearchList.value =[]; // Clear previous search results
+    postSearchList.value = []; // Clear previous search results
     try {
       var request = PostBaseRequest(status: "ACT", name: name);
       var response = await _postRepository.getAllPosts(request);
@@ -332,6 +426,17 @@ class PostViewModel extends GetxController {
     }
   }
 
-
-
+  onUpdateProfileUser(int id) async {
+    Get.toNamed(RouteName.postUserUpdate, parameters: {"id": "${id}"})
+        ?.then((onValue) {
+      if (onValue == true) {
+        print("ON VALUE TRUE");
+        // postList.value = [];
+        fetchUser();
+        getAllUsers();
+        showCustomToast(message: "Your Profile Updated Successfully");
+        // getAllPost();
+      }
+    });
+  }
 }

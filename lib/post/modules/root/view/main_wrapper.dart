@@ -1,61 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:product_flutter_app/post/modules/category/view/post_category_form_widget_view.dart';
 import 'package:product_flutter_app/post/modules/category/view/post_category_view.dart';
-import 'package:product_flutter_app/post/modules/post/view/post_form_view.dart';
 import 'package:product_flutter_app/post/modules/post/view/post_menu_view.dart';
-import 'package:product_flutter_app/post/modules/post/view/post_search_view.dart';
+import 'package:product_flutter_app/post/modules/post/view/post_profile_view.dart';
 import 'package:product_flutter_app/post/modules/post/view/post_view.dart';
 import 'package:product_flutter_app/post/modules/root/controller/bottom_nav_controller.dart';
-import 'package:product_flutter_app/post/modules/root/view/root_view.dart';
-import 'package:product_flutter_app/post/modules/post/view/post_profile_view.dart';
+import 'package:product_flutter_app/routes/app_routes.dart';
 
 class MainWrapper extends StatelessWidget {
   final BottomNavController controller = Get.put(BottomNavController());
 
-  final List<Widget> pages = [
-    PostView(), // Replace with your actual screens
-    PostCategoryView(),
-    PostFormView(),
-    RootView(),
-    PostCategoryFormWidgetView(),
-    PostMenuView(),
-    PostProfileView(), // Add PostProfileView to the list of pages
+  final List<Map<String, dynamic>> navItems = [
+    {"icon": Icons.home, "label": "Home", "route": RouteName.postRoot},
+    {
+      "icon": Icons.category_rounded,
+      "label": "Category",
+      "route": RouteName.postManageCategory,
+    },
+    {"icon": Icons.person, "label": "Profile", "route": RouteName.postProfile},
+    {"icon": Icons.menu, "label": "Menu", "route": RouteName.postMenu},
   ];
+
+  final Map<String, Widget> routePages = {
+    RouteName.postRoot: PostView(),
+    RouteName.postManageCategory: PostCategoryView(),
+    RouteName.postProfile: PostProfileView(),
+    RouteName.postMenu: PostMenuView(),
+  };
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-          () => Scaffold(
-        body: PageView(
-          controller: controller.pageController,
-          onPageChanged: controller.updateIndex, // Update the active index
-          children: pages,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
+    return Scaffold(
+      body: Obx(() {
+        // Dynamically render the current page with a unique Key
+        final currentRoute = navItems[controller.currentIndex.value]['route'];
+        return KeyedSubtree(
+          key: ValueKey(currentRoute), // Add a unique key for each route
+          child: routePages[currentRoute] ?? PostView(),
+        );
+      }),
+      bottomNavigationBar: Obx(
+        () => BottomNavigationBar(
           currentIndex: controller.currentIndex.value,
           onTap: (index) {
-            if (index == 6) {
-              // Navigate to the profile page
-              controller.navigateToProfile();
-            } else {
-              controller.changePage(index); // Navigate to other tabs
-            }
+            // Update currentIndex
+            controller.updateIndex(index);
+
+            // Navigate to the selected page
+            final selectedRoute = navItems[index]['route'];
+            Get.offNamed(
+              selectedRoute,
+              id: 1,
+            );
           },
           selectedItemColor: Colors.blue,
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.video_call), label: "Video"),
-            BottomNavigationBarItem(icon: Icon(Icons.people), label: "Friends"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.store), label: "Marketplace"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.notifications), label: "Notifications"),
-            BottomNavigationBarItem(icon: Icon(Icons.menu), label: "Menu"),
-          ],
+          items: navItems.map((item) {
+            return BottomNavigationBarItem(
+              icon: Icon(item["icon"]),
+              label: item["label"],
+            );
+          }).toList(),
         ),
       ),
     );

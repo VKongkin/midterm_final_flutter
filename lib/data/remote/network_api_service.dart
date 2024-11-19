@@ -60,7 +60,7 @@ class NetworkApiService implements BaseApiService {
       var storage = GetStorage();
       // print("USER CHECK: ${storage.read("USER_KEY")}");
 
-      if(storage.read("USER_KEY") ==null){
+      if(storage.read("USER_KEY") == null){
         Get.offAllNamed(RouteName.postSplash);
       }
 
@@ -592,5 +592,57 @@ class NetworkApiService implements BaseApiService {
     }
     return responseJson;
   }
+
+  Future onRefreshToken() async {
+    print("REFRESH TOKEN");
+    dynamic responseJson;
+    try {
+      var storage = GetStorage();
+      var user = LoginResponse.fromJson(storage.read("USER_KEY"));
+      var refreshToken = "";
+      if (user.refreshToken != null) {
+        refreshToken = user.refreshToken ?? "";
+      }
+      var body = {
+        'refreshToken': refreshToken,
+      };
+
+      var response = await http
+          .post(
+        Uri.parse(ApiUrl.postAppRefreshTokenPath),
+        headers: {
+          'Content-Type': 'application/json', // Ensure JSON request
+        },
+        body: jsonEncode(body), // Encode body as JSON
+      )
+          .timeout(const Duration(seconds: 60));
+
+      print("STATUS CODE REFRESH: ${response.statusCode}");
+      print("REQUEST URL: ${ApiUrl.postAppRefreshTokenPath}");
+      print("REQUEST BODY: $body");
+
+      switch (response.statusCode) {
+        case 200:
+          responseJson = jsonDecode(response.body);
+          print("REFRESH TOKEN SUCCESS: $responseJson");
+          break;
+        case 401:
+          print("REFRESH TOKEN UNAUTHORIZED");
+          storage.remove("USER_KEY");
+          Get.offAllNamed(RouteName.postSplash);
+          break;
+        case 500:
+          throw InternalServerException();
+        default:
+          print("UNHANDLED STATUS CODE: ${response.statusCode}");
+      }
+    } on SocketException {
+      throw NoInternetConnectionException();
+    } on TimeoutException {
+      throw RequestTimeOutException();
+    }
+    return responseJson;
+  }
+
 
 }

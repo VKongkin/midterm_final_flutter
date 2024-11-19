@@ -13,13 +13,13 @@ class PostUploadResponse {
     messageKh = json['messageKh'];
     messageCh = json['messageCh'];
     code = json['code'];
-    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    data = json['data'] ;
   }
   String? message;
   String? messageKh;
   String? messageCh;
   String? code;
-  Data? data;
+  dynamic data;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -27,9 +27,8 @@ class PostUploadResponse {
     map['messageKh'] = messageKh;
     map['messageCh'] = messageCh;
     map['code'] = code;
-    if (data != null) {
-      map['data'] = data?.toJson();
-    }
+    map['data'] = data;
+
     return map;
   }
 

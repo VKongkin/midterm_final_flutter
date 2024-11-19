@@ -6,6 +6,8 @@ import 'package:product_flutter_app/post/modules/post/view_model/post_view_model
 import 'package:product_flutter_app/post/widgets/post_app_bar_widget.dart';
 import 'package:product_flutter_app/post/widgets/post_view_widget.dart';
 import 'package:product_flutter_app/routes/app_routes.dart';
+import 'package:product_flutter_app/cors/constants/constants.dart';
+
 
 class PostSearchView extends StatefulWidget {
   PostSearchView({super.key});
@@ -78,8 +80,8 @@ class _PostSearchViewState extends State<PostSearchView> {
                           onChanged: (value) {
                             viewModel.onSearch(value); // Dynamic search
                           },
-                          decoration: const InputDecoration(
-                            hintText: "Search here...",
+                          decoration: InputDecoration(
+                            hintText: Constants.Search.tr,
                             hintStyle: TextStyle(color: Colors.grey),
                             border: InputBorder.none,
                           ),
@@ -114,7 +116,7 @@ class _PostSearchViewState extends State<PostSearchView> {
                 // }
 
                 if (viewModel.postSearchList.isEmpty) {
-                  return const Center(child: Text("No results found."));
+                  return  Center(child: Text(Constants.notFound.tr));
                 }
 
                 return NotificationListener<ScrollNotification>(
@@ -139,6 +141,8 @@ class _PostSearchViewState extends State<PostSearchView> {
                               ? "${ApiUrl.postGetImagePath}${data.user!.profile}"
                               : Constants.iconNoImage,
                           userName: data.createBy!,
+                          firstName: data.user!.firstName!,
+                          lastName: data.user!.lastName!,
                           timestamp: data.createAt!,
                           postText: data.description!,
                           postImageUrl: data.image != null && data.image!.isNotEmpty
