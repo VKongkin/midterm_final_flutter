@@ -37,7 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.2.2
   get: ^4.6.6
-  fluttertoast: ^8.2.8
+  fluttertoast: ^8.2.10
   shimmer: ^3.0.0
   overlay_support: ^2.1.0
   get_storage: ^2.1.1

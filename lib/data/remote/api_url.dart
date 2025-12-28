@@ -6,7 +6,8 @@ class ApiUrl{
   static const String getAllProductsByCategoryUrl = "$baseUrl/products/category";
   static const String loginPath = "$baseUrl/auth/login";
 
-  static const String baseUrlPostApp = "http://194.233.91.140:20099";
+  // static const String baseUrlPostApp = "http://194.233.91.140:20099";
+  static const String baseUrlPostApp = "http://192.168.18.226:2030";
   static const String postAppLoginPath = "$baseUrlPostApp/api/oauth/token";
   static const String postAppRefreshTokenPath = "$baseUrlPostApp/api/oauth/refresh";
   static const String postAppRegisterPath = "$baseUrlPostApp/api/oauth/register";

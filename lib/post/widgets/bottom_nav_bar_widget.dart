@@ -8,7 +8,7 @@ class BottomNavBarWidget extends StatelessWidget {
   final BottomNavController controller = Get.put(BottomNavController());
 
   final List<Map<String, dynamic>> items = [
-    {"icon": Icons.home, "label": "Home", "route": RouteName.postRoot},
+    {"icon": Icons.home, "label": "Homes", "route": RouteName.postRoot},
     {
       "icon": Icons.category_rounded,
       "label": "Category",

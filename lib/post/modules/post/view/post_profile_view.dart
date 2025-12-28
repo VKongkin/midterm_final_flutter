@@ -65,7 +65,7 @@ class _PostProfileViewState extends State<PostProfileView> {
                     controller.updateIndex(0);
                   },
                   appTitle: Constants.Profile.tr,
-                  fontSize: 17,
+                  fontSize: 16,
                   backIcon: Icons.grid_view_rounded,
                   onSearchTap: (){
                     Get.toNamed(RouteName.postSearch);

@@ -42,7 +42,7 @@ class PostAppBarWidget extends StatelessWidget {
     return Container(
       color: Colors.blue,
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 8,
+        top: 0,
         left: 16.0,
         right: 16.0,
         bottom: 16.0,
